@@ -1,0 +1,1389 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Track NASA's Artemis II crewed mission around the Moon in real time. Live telemetry, mission timeline, crew bios, and spacecraft data."
+    />
+    <meta
+      property="og:title"
+      content="Artemis II Live Tracker — Real-Time Moon Mission Dashboard"
+    />
+    <meta
+      property="og:description"
+      content="Track NASA's Artemis II Moon mission live. Real-time telemetry from JPL Horizons, crew schedule, space weather, audio sonification radar."
+    />
+    <meta property="og:image" content="img/artemis-ii-launch.jpg" />
+    <meta property="og:url" content="index.html" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Artemis II Live Tracker" />
+    <meta
+      name="twitter:description"
+      content="Real-time telemetry, crew schedule, space weather, and audio radar for NASA's first crewed Moon mission since 1972."
+    />
+    <meta name="twitter:image" content="img/artemis-ii-launch.jpg" />
+    <meta name="theme-color" content="#0a0e17" />
+    <title>Artemis II Mission Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Skip navigation for screen readers -->
+    <a id="skip-nav" class="skip-nav" href="#main-content"
+      >Skip to main content</a
+    >
+
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="site-title" href="index.html">
+          <span>Artemis II</span> Tracker
+        </a>
+
+        <div id="data-status" class="data-status data-status--prelaunch">
+          Pre-launch — data available after liftoff
+        </div>
+
+        <button
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="main-nav"
+          aria-label="Open menu"
+        >
+          <svg class="icon-menu" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+          <svg class="icon-close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M6 18L18 6" />
+          </svg>
+        </button>
+
+        <nav id="main-nav" class="site-nav" aria-label="Main navigation">
+          <ul>
+            <li><a aria-current="page" href="index.html">Home</a></li>
+            <li><a href="media.html">Gallery</a></li>
+            <li><a href="#dashboard">Live Data</a></li>
+            <li><a href="#spacecraft-telemetry">Telemetry</a></li>
+            <li><a href="#space-weather">Space Weather</a></li>
+            <li><a href="#dsn">DSN</a></li>
+            <li><a href="#audio-radar">Audio Radar</a></li>
+            <li><a href="#livestream">Live Coverage</a></li>
+            <li><a href="#timeline">Timeline</a></li>
+            <li><a href="#news">News</a></li>
+            <li><a href="crew.html">Crew</a></li>
+            <li><a href="crew-schedule.html">Crew Schedule</a></li>
+            <li><a href="spacecraft.html">Spacecraft</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="sources.html">Data Sources</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    
+    <!-- ── Mission Status Bar (Secondary Nav) ────────────────────────── -->
+    <nav class="mission-status-bar" aria-label="Secondary mission telemetry">
+      <div class="status-bar-container">
+        
+        <!-- ARTEMIS II LIVE -->
+        <div class="status-widget">
+          <span class="status-label">ARTEMIS II</span>
+          <span id="sub-nav-mission" class="status-value status-value--live">
+            <span class="status-dot"></span> LIVE
+          </span>
+        </div>
+
+        <!-- MET -->
+        <div class="status-widget">
+          <span class="status-label">MET</span>
+          <span id="sub-nav-met" class="status-value">000:00:00:00</span>
+        </div>
+
+        <!-- PHASE -->
+        <div class="status-widget">
+          <span class="status-label">PHASE</span>
+          <span id="sub-nav-phase" class="status-value status-value--phase">PRE-LAUNCH</span>
+        </div>
+
+        <!-- DAY -->
+        <div class="status-widget">
+          <span class="status-label">DAY</span>
+          <span id="sub-nav-day" class="status-value status-value--day">FD00</span>
+        </div>
+
+        <!-- DSN -->
+        <div class="status-widget">
+          <span class="status-label">DSN</span>
+          <span id="sub-nav-dsn" class="status-value status-value--dsn">
+            <span class="status-dot"></span> SCANNING
+          </span>
+        </div>
+
+        <!-- CREW -->
+        <div class="status-widget">
+          <span class="status-label">CREW</span>
+          <span id="sub-nav-crew" class="status-value">NOMINAL</span>
+        </div>
+
+        <!-- TOILET -->
+        <div class="status-widget">
+          <span class="status-label">TOILET</span>
+          <span id="sub-nav-toilet" class="status-value status-value--go">
+            <span class="status-dot"></span> GO
+          </span>
+        </div>
+
+        <!-- VELOCITY -->
+        <div class="status-widget status-widget--telemetry">
+          <span class="status-label">VEL</span>
+          <span id="sub-nav-vel" class="status-value">0 km/h</span>
+        </div>
+
+        <!-- ALTITUDE -->
+        <div class="status-widget status-widget--telemetry">
+          <span class="status-label">ALT</span>
+          <span id="sub-nav-alt" class="status-value">0 km</span>
+        </div>
+
+        <!-- SLEEP -->
+        <div class="status-widget">
+          <span class="status-label">SLEEP</span>
+          <span id="sub-nav-sleep" class="status-value status-value--countdown">--h --m</span>
+        </div>
+
+        <!-- VEHICLE -->
+        <div class="status-widget">
+          <span class="status-label">VEHICLE</span>
+          <span id="sub-nav-vehicle" class="status-value">ORION</span>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- ── Main content ────────────────────────────────────────────────── -->
+    <main id="main-content">
+      <!-- ── Hero ────────────────────────────────────────────────────── -->
+      <section class="hero" aria-label="Mission status">
+        <!-- TODO: Add srcset/picture for responsive hero image once image tooling is available.
+           Recommended sizes: 640w, 1024w, 1920w. See mobile audit item #3. -->
+        <img
+          src="img/artemis-ii-launch.jpg"
+          srcset="
+            img/artemis-ii-launch-640w.jpg   640w,
+            img/artemis-ii-launch-1024w.jpg 1024w,
+            img/artemis-ii-launch.jpg       1920w
+          "
+          sizes="100vw"
+          alt="NASA's SLS rocket carrying the Orion spacecraft rises between two steel lightning towers at Kennedy Space Center, seconds after liftoff. The orange core stage glows warm against the deep blue-black night. Below the rocket, a blinding column of white-gold flame pours from the twin boosters, so bright it turns the launch pad into artificial daylight. Enormous clouds of steam — taller than the trees lining the shore — tumble outward in every direction, swallowing the base of the tower and rolling toward the dark Florida treeline in the foreground. The exhaust lights the clouds from within, giving them a warm amber glow at the edges that fades to grey. Above it all, the small white tip of Orion sits calmly atop the fury, pointed at the Moon."
+          class="hero__bg-img"
+        />
+        <div class="container">
+          <h1 id="hero-heading" class="sr-only">Artemis II Mission Status</h1>
+
+          <p id="mission-phase" class="hero__phase">PRE-LAUNCH</p>
+
+          <p id="hero-status" class="hero__status">
+            Countdown to launch is active.
+          </p>
+
+          <div class="hero__met" role="timer" aria-labelledby="met-label">
+            <span id="met-label" class="hero__met-label"
+              >Countdown to Launch</span
+            >
+            <span id="val-met">L- 00h 00m 00s</span>
+          </div>
+
+          <div class="hero__crew-activity">
+            <p id="crew-activity-now" class="hero__crew-now">
+              Pre-launch preparations
+            </p>
+            <p id="crew-activity-next" class="hero__crew-next"></p>
+            <a href="#timeline" class="hero__crew-link"
+              >View full schedule &rarr;</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Milestones (NEW) ────────────────────────────────────────── -->
+      <section class="milestones-track" id="mission-milestones" aria-labelledby="milestones-heading">
+        <div class="container">
+          <div class="milestones-header">
+            <h2 id="milestones-heading" class="milestones-title">
+              🎯 Mission Milestones
+              <span id="milestones-progress" class="milestones-progress-badge">0/20</span>
+            </h2>
+          </div>
+          
+          <div class="milestones-container glass-panel">
+            <div id="milestones-list" class="milestones-list">
+              <!-- Milestones dynamically injected by app.js -->
+              <div class="milestones-loader">Calculating mission trajectory...</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <!-- ── Current Activity and Next Milestone (NEW) ─────────────────── -->
+      <section class="ops-dashboard" id="mission-ops">
+        <div class="container ops-grid">
+          
+          <!-- 1. Current Activity (Crew) -->
+          <div class="ops-card glass-panel" id="ops-current-activity">
+            <div class="ops-card-header">
+              <span class="ops-icon">⚡</span>
+              <h3 class="ops-title">Current Activity</h3>
+            </div>
+            
+            <div class="ops-activity-body">
+              <div class="ops-main-item">
+                <div id="activity-label" class="ops-activity-type">Sleep</div>
+                <div id="activity-title" class="ops-activity-title">Sleep period</div>
+                <p id="activity-desc" class="ops-activity-desc">Full rest period.</p>
+              </div>
+              
+              <div class="ops-metrics-grid">
+                <div class="ops-metric">
+                  <span class="ops-label">Start (MET)</span>
+                  <span id="activity-start" class="ops-value">000:00:00:00</span>
+                </div>
+                <div class="ops-metric">
+                  <span class="ops-label">End (MET)</span>
+                  <span id="activity-end" class="ops-value">000:00:00:00</span>
+                </div>
+                <div class="ops-metric">
+                  <span class="ops-label">Duration</span>
+                  <span id="activity-duration" class="ops-value">0h</span>
+                </div>
+                <div class="ops-metric">
+                  <span class="ops-label">Attitude Mode</span>
+                  <span id="sc-attitude-mode" class="ops-value">Bias -XSI</span>
+                </div>
+              </div>
+
+              <div class="ops-progress-container">
+                <div class="ops-progress-header">
+                  <span>Activity Progress</span>
+                  <span id="activity-pct" class="ops-progress-label">0.0%</span>
+                </div>
+                <div class="ops-progress-track">
+                  <div id="activity-bar" class="ops-progress-fill" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div class="ops-phase-container">
+                <div class="ops-progress-header">
+                  <span id="phase-label">Mission Phase — Trans-Lunar</span>
+                  <span id="phase-pct" class="ops-progress-label">0.0% complete</span>
+                </div>
+                <div class="ops-progress-track ops-progress-track--energy">
+                  <div id="phase-bar" class="ops-progress-fill ops-progress-fill--energy" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Next Milestone (Countdown) -->
+          <div class="ops-card glass-panel" id="ops-next-milestone">
+            <div class="ops-card-header">
+              <span class="ops-icon">🎯</span>
+              <h3 class="ops-title">Next Milestone</h3>
+            </div>
+            
+            <div class="ops-countdown-body">
+              <div id="next-countdown" class="ops-countdown-value">T-00:00:00:00</div>
+              
+              <div class="ops-next-content">
+                <div id="next-title" class="ops-next-title">Awaiting Burn...</div>
+                <p id="next-desc" class="ops-next-desc">Standby for next mission maneuver update from Houston.</p>
+                <div class="ops-next-met">
+                  <span class="ops-label">Target MET</span>
+                  <span id="next-met" class="ops-value">000:00:00:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── Live Data Dashboard ─────────────────────────────────────── -->
+      <section id="dashboard" class="section">
+        <div class="container">
+          <h2 id="dash-heading">Live Data</h2>
+
+          <!-- dash-live-summary disabled -->
+
+          <dl class="dashboard-grid dashboard-grid--primary">
+            <div class="dash-card dash-card--primary" id="val-speed">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">Speed</summary>
+                  <p class="dash-explain__text">
+                    How fast Orion is moving relative to Earth. After the
+                    trans-lunar injection burn, the spacecraft coasts at roughly
+                    39,000 km/h but gradually decelerates as Earth&rsquo;s
+                    gravity pulls it back. It will speed up again during the
+                    lunar flyby as the Moon&rsquo;s gravity slings the capsule
+                    around the far side.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+
+            <div class="dash-card dash-card--primary" id="val-dist-earth">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">
+                    Distance from Earth
+                  </summary>
+                  <p class="dash-explain__text">
+                    The straight-line distance between Orion and Earth&rsquo;s
+                    surface. During the outbound leg this number climbs steadily
+                    for about four days, peaking near 380,000 km. On Artemis II
+                    this makes the crew the farthest humans from home since
+                    Apollo 17 in 1972&thinsp;&mdash;&thinsp;and the first to
+                    travel this far in over fifty years.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+
+            <div class="dash-card dash-card--primary" id="val-dist-moon">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">
+                    Distance from Moon
+                  </summary>
+                  <p class="dash-explain__text">
+                    How far Orion is from the lunar surface. This shrinks
+                    dramatically during the flyby. At closest approach the crew
+                    will pass roughly 6,600 km above the far
+                    side&thinsp;&mdash;&thinsp;close enough to see individual
+                    craters with the naked eye, and far beyond the reach of any
+                    communication relay, producing several minutes of planned
+                    loss-of-signal.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+
+            <div class="dash-card dash-card--primary" id="val-altitude">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">Altitude</summary>
+                  <p class="dash-explain__text">
+                    Orion&rsquo;s height above the nearest major body (Earth
+                    near launch and return, the Moon during the flyby). Watch it
+                    drop quickly after launch as the spacecraft transitions from
+                    its parking orbit, then climb again on the trans-lunar
+                    coast. During the powered flyby it plunges back down before
+                    climbing once more on the return leg.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+
+            <div class="dash-card dash-card--primary" id="val-periapsis">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">Periapsis</summary>
+                  <p class="dash-explain__text">
+                    The lowest point in Orion&rsquo;s current elliptical orbit.
+                    Correct periapsis is vital for atmospheric entry: too high
+                    and the capsule skips off into space; too low and the entry
+                    heat is insurmountable. 
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+
+            <div class="dash-card dash-card--primary" id="val-apoapsis">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">Apoapsis</summary>
+                  <p class="dash-explain__text">
+                    The highest point in Orion&rsquo;s orbit. On Artemis II,
+                    this reaches over 400,000 km, the ultimate distance humans
+                    will travel from Earth on this mission before the lunar
+                    gravity and Earth&rsquo;s pull begin the return phase.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+          </dl>
+
+          <dl class="dashboard-grid">
+            <div class="dash-card" id="val-light-delay">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">Signal Delay</summary>
+                  <p class="dash-explain__text">
+                    The time it takes a radio signal to travel between Orion and
+                    Mission Control in Houston. Near Earth it&rsquo;s
+                    negligible, but at lunar distance it reaches about 1.3
+                    seconds each way. That means every voice call has a
+                    2.6-second round-trip lag&thinsp;&mdash;&thinsp;noticeable
+                    in conversation, and a real factor when the crew needs to
+                    coordinate time-critical manoeuvres with the ground.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+            <div class="dash-card" id="val-range-rate">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">Range Rate</summary>
+                  <p class="dash-explain__text">
+                    Whether the distance between Orion and Earth is growing or
+                    shrinking, and how fast. A positive value means the
+                    spacecraft is moving away; negative means it&rsquo;s heading
+                    home. This is one of the key numbers flight dynamics
+                    officers watch to confirm the spacecraft is on the right
+                    trajectory after each burn.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+
+            <div class="dash-card" id="val-solar-phase">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">
+                    Solar Phase Angle
+                  </summary>
+                  <p class="dash-explain__text">
+                    The angle between the Sun, Orion, and the observer (Earth).
+                    It determines how much of the spacecraft is sunlit as seen
+                    from home. At 0&deg; the Sun is behind the observer and
+                    Orion is fully lit; at 180&deg; it&rsquo;s backlit. This
+                    matters for optical tracking, thermal management, and tells
+                    you whether the crew is seeing a sunlit or shadowed lunar
+                    surface during their flyby.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+            <div class="dash-card" id="val-gforce">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">
+                    Crew G-Force <span class="dash-card__est">(estimated)</span>
+                  </summary>
+                  <p class="dash-explain__text">
+                    The acceleration the crew feels, expressed as multiples of
+                    Earth&rsquo;s gravity. During coast phases it hovers near
+                    zero&thinsp;&mdash;&thinsp;the crew floats weightless. At
+                    launch it peaks around 2.5 G (the crew weighs 2&frac12;
+                    times normal), and during re-entry it surges to roughly 4 G
+                    for several minutes as the capsule decelerates through the
+                    atmosphere. That&rsquo;s uncomfortable but well within the
+                    crew&rsquo;s training limits.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">1.0 G</dd>
+              <dd class="dash-secondary">Normal Earth gravity</dd>
+            </div>
+
+            <div class="dash-card" id="val-earth-view">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">Earth View</summary>
+                  <p class="dash-explain__text">
+                    The region of Earth directly below Orion right
+                    now&thinsp;&mdash;&thinsp;the sub-spacecraft point. From the
+                    crew&rsquo;s distance, they can see an entire hemisphere at
+                    once: oceans, continents, cloud patterns, and the thin blue
+                    line of the atmosphere. As Orion travels farther from Earth,
+                    more of the planet fits in their window, but individual
+                    features grow smaller. This is computed from Orion&rsquo;s
+                    geocentric position vectors provided by JPL Horizons.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+
+            <div class="dash-card" id="val-earth-apparent">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">
+                    Earth Apparent Size
+                  </summary>
+                  <p class="dash-explain__text">
+                    How large Earth appears to the crew, measured as an angular
+                    diameter in degrees. On Earth, the Moon looks about 0.5&deg;
+                    across&thinsp;&mdash;&thinsp;roughly a pinky fingernail at
+                    arm&rsquo;s length. As Orion travels toward the Moon, Earth
+                    shrinks from filling the windows to a small, brilliant disc.
+                    The crew can literally watch their home world become a dot,
+                    giving them the &ldquo;Overview
+                    Effect&rdquo;&thinsp;&mdash;&thinsp;a profound shift in
+                    perspective reported by nearly every deep-space astronaut.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+
+            <div class="dash-card" id="val-moon-apparent">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">
+                    Moon Apparent Size
+                  </summary>
+                  <p class="dash-explain__text">
+                    How large the Moon appears to the crew, measured as an
+                    angular diameter in degrees. From Earth, the Moon spans
+                    about 0.5&deg;. During the outbound coast the Moon grows
+                    slowly larger; during the close flyby it swells
+                    dramatically&thinsp;&mdash;&thinsp;potentially filling an
+                    entire window. At closest approach (~6,600&thinsp;km) it can
+                    appear over 29&deg; wide, roughly the span of a hand with
+                    fingers spread apart. This is a view no human has seen since
+                    the Apollo era.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+          </dl>
+
+          <p id="dash-disclaimer" class="dash-disclaimer">
+            Data shown is estimated based on mission trajectory. Live NASA
+            telemetry is not yet available.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── Spacecraft Telemetry (AROW live) ──────────────────────────── -->
+      <section id="spacecraft-telemetry" class="section arow-section" hidden>
+        <div class="container">
+          <h2 id="sc-telem-heading">Spacecraft Telemetry</h2>
+          <p class="section-intro">
+            Live attitude and systems data from Orion, updated every second via
+            ground telemetry.
+          </p>
+
+          <dl class="dashboard-grid dashboard-grid--telem">
+            <!-- Attitude -->
+            <div class="dash-card dash-card--telem" id="val-attitude">
+              <dt class="dash-card__label">Attitude (Roll / Pitch / Yaw)</dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+ 
+            <!-- Angular Rates -->
+            <div class="dash-card dash-card--telem" id="val-angular-rates">
+              <dt class="dash-card__label">Angular Rates</dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+ 
+            <!-- Solar Array Wings -->
+            <div class="dash-card dash-card--telem" id="val-solar-arrays">
+              <dt class="dash-card__label">Solar Array Wings</dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+ 
+            <!-- Antenna Gimbals -->
+            <div class="dash-card dash-card--telem" id="val-antenna-gimbal">
+              <dt class="dash-card__label">Antenna Gimbals</dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary"></dd>
+            </div>
+ 
+            <!-- Spacecraft Mode -->
+            <div class="dash-card dash-card--telem" id="val-sc-mode">
+              <dt class="dash-card__label">Spacecraft Mode</dt>
+              <dd class="dash-primary">Awaiting data</dd>
+              <dd class="dash-secondary">Raw AROW mode byte</dd>
+            </div>
+          </dl>
+
+          <p class="arow-attribution" id="arow-attribution">
+            Data from
+            <a
+              href="https://artemis.cdnspace.ca/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >AROW Community API<span class="sr-only">
+                (opens in new tab)</span
+              ></a
+            >.
+            <span id="arow-timestamp"></span>
+          </p>
+        </div>
+      </section>
+
+      <!-- ── Space Weather ───────────────────────────────────────────────── -->
+      <section id="space-weather" class="section">
+        <div class="container">
+          <h2 id="space-weather-heading">Space Weather</h2>
+
+          <dl class="dashboard-grid">
+            <!-- ① Overall Risk Level -->
+            <div class="dash-card" id="sw-status-card">
+              <dt class="dash-card__label">
+                <details class="dash-explain">
+                  <summary class="dash-explain__toggle">
+                    Overall Risk Level
+                  </summary>
+                  <p class="dash-explain__text">
+                    A combined assessment of solar flares, geomagnetic storms,
+                    coronal mass ejections, and solar energetic particle events
+                    over the last 3&nbsp;days. For Artemis&nbsp;II crew
+                    travelling beyond Earth&rsquo;s magnetosphere,
+                    &ldquo;Elevated&rdquo; means conditions should be monitored
+                    and &ldquo;Severe&rdquo; may require sheltering inside
+                    Orion&rsquo;s crew module or adjusting the flight plan.
+                  </p>
+                </details>
+              </dt>
+              <dd class="dash-primary">
+                <span
+                  id="sw-status-dot"
+                  class="comms-dot comms-dot--yellow"
+                  aria-hidden="true"
+                ></span>
+                <span id="sw-status-text">Loading&hellip;</span>
+              </dd>
+              <dd class="dash-secondary" id="sw-status-detail"></dd>
+              <dd class="dash-secondary" id="sw-compact-summary"></dd>
+            </div>
+          </dl>
+
+          <!-- Fix #17: Collapsible space weather detail cards on mobile -->
+          <details class="sw-mobile-collapse" id="sw-mobile-collapse" open>
+            <summary>Space weather details</summary>
+            <dl class="dashboard-grid sw-cards-collapsible">
+              <!-- ② Last Solar Flare -->
+              <div class="dash-card" id="sw-card-flare">
+                <dt class="dash-card__label">
+                  <details class="dash-explain">
+                    <summary class="dash-explain__toggle">
+                      Last Solar Flare
+                      <span id="sw-flares-badge" class="dash-card__est"></span>
+                    </summary>
+                    <p class="dash-explain__text">
+                      Solar flares are bursts of radiation from the Sun,
+                      classified by intensity: <strong>C-class</strong> are
+                      common and weak, <strong>M-class</strong> are moderate and
+                      can cause brief radio blackouts, and
+                      <strong>X-class</strong> are the most
+                      powerful&thinsp;&mdash;&thinsp;they can disrupt
+                      communications and, critically for a deep-space crew,
+                      produce dangerous radiation. For Artemis&nbsp;II
+                      astronauts beyond Earth&rsquo;s magnetic shield, an
+                      X-class flare could require sheltering inside
+                      Orion&rsquo;s crew module.
+                    </p>
+                  </details>
+                </dt>
+                <dd class="dash-primary" id="sw-flare-primary">
+                  Awaiting data
+                </dd>
+                <dd class="dash-secondary" id="sw-flare-secondary"></dd>
+                <dd class="dash-card__events">
+                  <details class="sw-detail-collapse">
+                    <summary class="sw-detail-toggle">Recent flares</summary>
+                    <div id="sw-flares-list"></div>
+                  </details>
+                </dd>
+              </div>
+
+              <!-- ③ Geomagnetic Storms -->
+              <div class="dash-card" id="sw-card-storm">
+                <dt class="dash-card__label">
+                  <details class="dash-explain">
+                    <summary class="dash-explain__toggle">
+                      Geomagnetic (Kp Index)
+                      <span id="sw-storms-badge" class="dash-card__est"></span>
+                    </summary>
+                    <p class="dash-explain__text">
+                      Geomagnetic storms happen when a burst of solar wind hits
+                      Earth&rsquo;s magnetic field, measured on the Kp index
+                      (0&ndash;9). <strong>Kp&nbsp;5+</strong> means a storm is
+                      underway: satellite electronics can glitch, GPS accuracy
+                      drops, and at Kp&nbsp;7+ high-frequency radio goes down.
+                      For Artemis&nbsp;II, storms shake up the radiation belts
+                      the crew passes through during launch and re-entry. A
+                      strong storm can also affect Deep Space Network tracking
+                      and communication.
+                    </p>
+                  </details>
+                </dt>
+                <dd class="dash-primary" id="sw-storm-primary">
+                  Awaiting data
+                </dd>
+                <dd class="dash-secondary" id="sw-storm-secondary"></dd>
+                <dd class="dash-card__events">
+                  <details class="sw-detail-collapse">
+                    <summary class="sw-detail-toggle">Storm history</summary>
+                    <div id="sw-storms-list"></div>
+                  </details>
+                </dd>
+              </div>
+
+              <!-- ④ Crew Radiation -->
+              <div class="dash-card" id="sw-card-radiation">
+                <dt class="dash-card__label">
+                  <details class="dash-explain">
+                    <summary class="dash-explain__toggle">
+                      Crew Radiation
+                      <span id="sw-sep-badge" class="dash-card__est"></span>
+                    </summary>
+                    <p class="dash-explain__text">
+                      Solar energetic particle (SEP) events are the biggest
+                      radiation threat to astronauts. When a powerful flare or
+                      CME accelerates protons to near light speed, they can
+                      penetrate spacecraft walls and cause radiation sickness.
+                      On the ISS, Earth&rsquo;s magnetosphere provides
+                      shielding. Artemis&nbsp;II will be <em>beyond</em> that
+                      shield for most of the mission. If an SEP event is active,
+                      the crew would shelter in the most shielded part of the
+                      Orion capsule and mission controllers may adjust the
+                      flight plan.
+                    </p>
+                  </details>
+                </dt>
+                <dd class="dash-primary" id="sw-radiation-primary">
+                  Awaiting data
+                </dd>
+                <dd class="dash-secondary" id="sw-radiation-secondary"></dd>
+                <dd class="dash-card__events">
+                  <details class="sw-detail-collapse">
+                    <summary class="sw-detail-toggle">
+                      SEP event details
+                    </summary>
+                    <div id="sw-sep-list"></div>
+                  </details>
+                </dd>
+              </div>
+
+              <!-- ⑤ CMEs -->
+              <div class="dash-card" id="sw-card-cme">
+                <dt class="dash-card__label">
+                  <details class="dash-explain">
+                    <summary class="dash-explain__toggle">
+                      CMEs
+                      <span id="sw-cme-badge" class="dash-card__est"></span>
+                    </summary>
+                    <p class="dash-explain__text">
+                      A coronal mass ejection (CME) is a massive cloud of
+                      magnetised plasma hurled from the Sun. It travels at
+                      250&ndash;3,000&nbsp;km/s and can take 1&ndash;3&nbsp;days
+                      to reach Earth. If directed at Earth or the Moon, a CME
+                      can trigger geomagnetic storms, radiation spikes, and
+                      communication disruptions. For Artemis&nbsp;II, an inbound
+                      CME is the main reason mission controllers might modify
+                      the flight timeline&thinsp;&mdash;&thinsp;it&rsquo;s the
+                      &ldquo;space hurricane&rdquo; that the crew and ground
+                      teams watch for most closely.
+                    </p>
+                  </details>
+                </dt>
+                <dd class="dash-primary" id="sw-cme-primary">Awaiting data</dd>
+                <dd class="dash-secondary" id="sw-cme-secondary"></dd>
+                <dd class="dash-card__events">
+                  <details class="sw-detail-collapse">
+                    <summary class="sw-detail-toggle">Recent CMEs</summary>
+                    <div id="sw-cme-list"></div>
+                  </details>
+                </dd>
+              </div>
+
+              <!-- ⑥ Proton Flux -->
+              <div class="dash-card" id="sw-card-proton">
+                <dt class="dash-card__label">
+                  <details class="dash-explain">
+                    <summary class="dash-explain__toggle">Proton Flux</summary>
+                    <p class="dash-explain__text">
+                      Solar protons are high-energy particles that can penetrate
+                      the spacecraft. <strong>Flux</strong> measures the number
+                      of particles passing through a surface. High levels
+                      (&gt;10&nbsp;pfu at 10&nbsp;MeV) indicate a solar
+                      radiation storm.
+                    </p>
+                  </details>
+                </dt>
+                <dd class="dash-primary" id="sw-proton-primary">
+                  Awaiting data
+                </dd>
+                <dd class="dash-secondary" id="sw-proton-secondary"></dd>
+              </div>
+
+              <!-- ⑦ Radiation Dose (Est.) -->
+              <div class="dash-card" id="sw-card-dose">
+                <dt class="dash-card__label">
+                  <details class="dash-explain">
+                    <summary class="dash-explain__toggle">
+                      Radiation Dose (Est.)
+                    </summary>
+                    <p class="dash-explain__text">
+                      Estimated cumulative dose for the Artemis&nbsp;II crew.
+                      Includes background Galactic Cosmic Rays (GCR), Van Allen
+                      belt transits, and solar particle events. Measured in
+                      millisieverts (mSv).
+                    </p>
+                  </details>
+                </dt>
+                <dd class="dash-primary" id="sw-dose-primary">
+                  Awaiting data
+                </dd>
+                <dd class="dash-secondary" id="sw-dose-secondary"></dd>
+              </div>
+            </dl>
+          </details>
+
+          <p id="sw-last-update" class="sw-attribution">
+            Data from
+            <a
+              href="https://ccmc.gsfc.nasa.gov/donki/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >NASA DONKI<span class="sr-only"> (opens in new tab)</span></a
+            >. Updated every 15&nbsp;min.
+            <span id="sw-timestamp"></span>
+          </p>
+        </div>
+      </section>
+
+      <!-- ── Deep Space Network ─────────────────────────────────────────── -->
+      <section id="dsn" class="section" aria-label="Deep Space Network">
+        <div class="container">
+          <!-- ── Comms Status ─────────────────────────────────────── -->
+          <div
+            id="comms-status"
+            class="comms-status-card"
+            aria-label="Communications status"
+          >
+            <span
+              id="comms-dot"
+              class="comms-dot comms-dot--yellow"
+              aria-hidden="true"
+            ></span>
+            <div>
+              <p id="comms-text" class="comms-text">
+                Checking communications status…
+              </p>
+              <p id="comms-detail" class="comms-detail"></p>
+            </div>
+          </div>
+
+          <div id="dsn-orion" class="dsn-orion">
+            <h2 id="dsn-orion-heading">Deep Space Network Tracking</h2>
+            <p id="dsn-orion-status" class="dsn-loading">DSN data loading…</p>
+            <div id="dsn-orion-dishes"></div>
+          </div>
+
+          <p class="dsn-attribution">
+            Data from
+            <a
+              href="https://eyes.nasa.gov/dsn/dsn.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              >NASA DSN Now<span class="sr-only"> (opens in new tab)</span></a
+            >. Updated every 10 seconds.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── Audio Radar ───────────────────────────────────────────────── -->
+      <section id="audio-radar" class="section">
+        <div class="container">
+          <h2 id="audio-radar-heading">Audio Radar</h2>
+          <details id="audio-radar-panel" class="audio-radar-panel">
+            <summary class="audio-radar-summary">Audio Radar</summary>
+
+            <div class="audio-radar-controls">
+              <p class="audio-radar-intro">
+                Sonification of spacecraft positions. A radar sweep scans left
+                to right; objects ping at their stereo position as the sweep
+                passes.
+              </p>
+
+              <div class="audio-control-row">
+                <button
+                  id="audio-enable-btn"
+                  class="btn btn--audio"
+                  type="button"
+                  aria-pressed="false"
+                >
+                  Enable Audio
+                </button>
+              </div>
+
+              <details id="audio-help-panel" class="audio-help-panel">
+                <summary class="btn btn--audio-sm">
+                  How Audio Radar Works
+                </summary>
+                <div class="audio-help-content">
+                  <p>
+                    The Audio Radar represents spacecraft positions as spatial
+                    sound. Headphones are recommended for accurate stereo
+                    positioning.
+                  </p>
+
+                  <h3>How the sweep works</h3>
+                  <p>
+                    A radar sweep pans from left to right every few seconds.
+                    Each object produces a distinct sound at its stereo position
+                    as the sweep passes. Earth is fixed on the left channel and
+                    the Moon on the right, establishing a consistent spatial
+                    frame of reference.
+                  </p>
+
+                  <h3>Three views, one journey</h3>
+                  <p>
+                    The radar selects a view automatically based on Orion's
+                    position, though manual selection is also available.
+                  </p>
+                  <ul class="audio-help-list">
+                    <li>
+                      <strong>Earth Orbit</strong> &mdash; Near-Earth space,
+                      with Earth on the left and the ISS and orbital landmarks
+                      distributed across the stereo field. Active when Orion is
+                      within 100,000&nbsp;km of Earth.
+                    </li>
+                    <li>
+                      <strong>Earth&ndash;Moon Transit</strong> &mdash; The full
+                      cislunar corridor. Earth on the left, Moon on the right.
+                      Active during the coast phase between the two bodies.
+                    </li>
+                    <li>
+                      <strong>Moon Orbit</strong> &mdash; The lunar vicinity,
+                      with the Moon at centre and Orion orbiting around it.
+                      Active when Orion is within 50,000&nbsp;km of the Moon.
+                    </li>
+                  </ul>
+
+                  <h3>Sound guide</h3>
+                  <p>
+                    Each object is assigned a distinctive sound signature for
+                    immediate identification.
+                  </p>
+                  <ul class="audio-help-list">
+                    <li>
+                      <strong>Earth</strong>
+                      <button
+                        type="button"
+                        class="btn--preview-sound"
+                        data-sound="earth"
+                      >
+                        Play
+                      </button>
+                      &mdash; Three rising notes, reminiscent of birdsong
+                    </li>
+                    <li>
+                      <strong>Moon</strong>
+                      <button
+                        type="button"
+                        class="btn--preview-sound"
+                        data-sound="moon"
+                      >
+                        Play
+                      </button>
+                      &mdash; A resonant, singing-bowl tone
+                    </li>
+                    <li>
+                      <strong>Orion</strong>
+                      <button
+                        type="button"
+                        class="btn--preview-sound"
+                        data-sound="orion"
+                      >
+                        Play
+                      </button>
+                      &mdash; A Quindar-style tracking beep
+                    </li>
+                    <li>
+                      <strong>ISS</strong>
+                      <button
+                        type="button"
+                        class="btn--preview-sound"
+                        data-sound="iss"
+                      >
+                        Play
+                      </button>
+                      &mdash; A short ascending frequency sweep
+                    </li>
+                    <li>
+                      <strong>Sweep</strong>
+                      <button
+                        type="button"
+                        class="btn--preview-sound"
+                        data-sound="sweep"
+                      >
+                        Play
+                      </button>
+                      &mdash; A soft noise hiss that pans across the stereo
+                      field, marking the sweep position
+                    </li>
+                  </ul>
+
+                  <h3>Tips</h3>
+                  <ul class="audio-help-list">
+                    <li>
+                      <strong>Stereo position</strong> corresponds to spatial
+                      location. Left indicates proximity to Earth; right, to the
+                      Moon.
+                    </li>
+                    <li>
+                      <strong>Orion's pitch</strong> varies with velocity
+                      &mdash; higher pitch indicates greater speed.
+                    </li>
+                    <li>
+                      <strong>Signal attenuation</strong> occurs when Orion
+                      passes behind the Moon, reflecting the real loss-of-signal
+                      experienced during far-side transit.
+                    </li>
+                  </ul>
+
+                  <h3>The Beat</h3>
+                  <p>
+                    Totally useless but very fun: enable the Beat checkbox to
+                    add a looping beat that syncs with the default 3-second
+                    sweep duration. When the beat is on, the positional sounds
+                    also pick up a touch of reverb and rhythmic delay. The beat
+                    was created by
+                    <a
+                      href="https://onj.me/youtube"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >Andre Louis<span class="sr-only">
+                        (opens in new tab)</span
+                      ></a
+                    >, AKA Freaky Fwoof.
+                  </p>
+                </div>
+              </details>
+
+              <fieldset class="audio-view-fieldset">
+                <legend>View</legend>
+                <label class="audio-radio-label">
+                  <input
+                    type="radio"
+                    name="sonification-view"
+                    value="earth-orbit"
+                    checked
+                  />
+                  Earth Orbit
+                  <span class="audio-radio-desc"
+                    >Near-Earth space. Earth at left, ISS and orbital landmarks
+                    spread across. Orion moves outward.</span
+                  >
+                </label>
+                <label class="audio-radio-label">
+                  <input
+                    type="radio"
+                    name="sonification-view"
+                    value="earth-moon"
+                  />
+                  Earth&#8211;Moon Transit
+                  <span class="audio-radio-desc"
+                    >Full journey view. Earth left, Moon right. Logarithmic
+                    scale.</span
+                  >
+                </label>
+                <label class="audio-radio-label">
+                  <input
+                    type="radio"
+                    name="sonification-view"
+                    value="moon-orbit"
+                  />
+                  Moon Orbit
+                  <span class="audio-radio-desc"
+                    >Lunar neighborhood. Moon at center, Orion loops around it.
+                    Earth far left.</span
+                  >
+                </label>
+              </fieldset>
+
+              <div class="audio-control-row">
+                <button
+                  id="audio-preview-btn"
+                  class="btn btn--audio-sm"
+                  type="button"
+                >
+                  Preview full trajectory (30s)
+                </button>
+              </div>
+
+              <div class="audio-control-row">
+                <label for="audio-volume">Volume</label>
+                <input
+                  id="audio-volume"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="60"
+                  step="1"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="60"
+                />
+                <span
+                  id="audio-volume-label"
+                  class="audio-value-label"
+                  aria-hidden="true"
+                  >60%</span
+                >
+              </div>
+
+              <div class="audio-control-row">
+                <label for="audio-sweep-speed">Sweep speed</label>
+                <input
+                  id="audio-sweep-speed"
+                  type="range"
+                  min="2"
+                  max="8"
+                  value="3"
+                  step="0.5"
+                  aria-valuemin="2"
+                  aria-valuemax="8"
+                  aria-valuenow="3"
+                />
+                <span
+                  id="audio-sweep-label"
+                  class="audio-value-label"
+                  aria-hidden="true"
+                  >3.0s</span
+                >
+              </div>
+
+              <fieldset class="audio-control-fieldset">
+                <legend>Objects</legend>
+                <label class="audio-checkbox-label">
+                  <input id="audio-obj-earth" type="checkbox" checked />
+                  Earth
+                </label>
+                <label class="audio-checkbox-label">
+                  <input id="audio-obj-moon" type="checkbox" checked />
+                  Moon
+                </label>
+                <label class="audio-checkbox-label">
+                  <input id="audio-obj-orion" type="checkbox" checked />
+                  Orion
+                </label>
+                <label class="audio-checkbox-label">
+                  <input id="audio-obj-iss" type="checkbox" checked />
+                  ISS
+                </label>
+                <label class="audio-checkbox-label">
+                  <input id="audio-obj-gps" type="checkbox" />
+                  GPS orbit
+                </label>
+                <label class="audio-checkbox-label">
+                  <input id="audio-obj-geo" type="checkbox" />
+                  Geostationary
+                </label>
+              </fieldset>
+
+              <fieldset class="audio-control-fieldset">
+                <legend>Layers</legend>
+                <label class="audio-checkbox-label">
+                  <input id="audio-beat" type="checkbox" />
+                  Beat
+                </label>
+              </fieldset>
+
+              <p id="audio-status" class="audio-status">Audio disabled</p>
+              <p
+                id="audio-milestone-status"
+                class="audio-status audio-milestone-status"
+              ></p>
+              <p id="preview-status" class="sr-only"></p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- ── Live Stream ─────────────────────────────────────────────── -->
+      <section id="livestream" class="section">
+        <div class="container">
+          <h2 id="livestream-heading">Live Coverage</h2>
+
+          <div class="stream-card">
+            <p>
+              24/7 mission coverage with mission control audio and crew
+              communications.
+            </p>
+            <div class="stream-embed">
+              <iframe
+                width="100%"
+                height="315"
+                src="https://www.youtube.com/embed/m3kR2KK8TEs"
+                name="Video player"
+                title="NASA Artemis II live mission coverage video"
+                allow="
+                  accelerometer;
+                  autoplay;
+                  clipboard-write;
+                  encrypted-media;
+                  gyroscope;
+                "
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+            <a
+              class="btn"
+              href="https://www.youtube.com/watch?v=m3kR2KK8TEs"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in YouTube <span aria-hidden="true">&#8599;</span
+              ><span class="sr-only"> (opens in new tab)</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Timeline ────────────────────────────────────────────────── -->
+      <section id="timeline" class="section">
+        <div class="container">
+          <h2 id="timeline-heading">Mission Timeline</h2>
+          <p id="schedule-updated" class="dash-disclaimer"></p>
+          <button
+            id="notify-toggle-btn"
+            class="btn btn--notify"
+            type="button"
+            aria-pressed="false"
+          >
+            Enable Notifications
+          </button>
+          <button
+            id="skip-to-current-btn"
+            class="btn btn--skip-current"
+            type="button"
+          >
+            Skip to current event
+          </button>
+          <div
+            id="timeline-tabs"
+            role="tablist"
+            aria-label="Mission timeline phases — use arrow keys to navigate tabs"
+          >
+            <!-- Tab buttons populated by JS -->
+          </div>
+          <div id="timeline-panels">
+            <!-- Tab panels populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ── News ────────────────────────────────────────────────────── -->
+      <section id="news" class="section" aria-labelledby="news-heading">
+        <div class="container">
+          <h2 id="news-heading">Latest Updates</h2>
+          <div id="news-list" class="news-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Fix #15: Back-to-top button for mobile -->
+    <a
+      href="#main-content"
+      class="back-to-top"
+      id="back-to-top"
+      aria-label="Back to top"
+      >&uarr;</a
+    >
+
+    <!-- ── Footer ──────────────────────────────────────────────────────── -->
+    <footer class="site-footer" id="site-footer">
+      <div class="container footer-grid">
+        
+        <!-- Column 1: Mission Identity -->
+        <div class="footer-col footer-col--brand">
+          <div class="footer-brand">
+            <span class="footer-logo">🚀</span>
+            <div class="footer-brand-text">
+              <span class="footer-mission">ARTEMIS II</span>
+              <span class="footer-tagline">ORION COMMAND DASHBOARD</span>
+            </div>
+          </div>
+          <p class="footer-copy">
+            Built for space nerds by Jakob Rosin. Not affiliated with NASA. 
+            All flight data sourced via NASA JPL & Community API.
+          </p>
+        </div>
+
+        <!-- Column 2: Operational Links -->
+        <div class="footer-col footer-col--links">
+          <h4 class="footer-heading">Operational Links</h4>
+          <nav class="footer-nav">
+            <a href="sources.html" class="footer-link">Data Sources</a>
+            <a href="https://github.com/jakobrosin/Artemis-Tracker" class="footer-link">Source Code</a>
+            <a href="https://universeodon.com/@jakobrosin" class="footer-link" rel="me">Mission Updates</a>
+            <a href="mailto:jakob.rsn@gmail.com" class="footer-link">Contact Houston</a>
+          </nav>
+        </div>
+
+        <!-- Column 3: System Telemetry (LIVE) -->
+        <div class="footer-col footer-col--system">
+          <h4 class="footer-heading">System Telemetry</h4>
+          <div class="footer-status-panel">
+            <div class="footer-status-row">
+              <span class="footer-status-label">Ground Control Time</span>
+              <span id="footer-system-time" class="footer-status-value">00:00:00 UTC</span>
+            </div>
+            <div class="footer-status-row">
+              <span class="footer-status-label">WebSocket Heartbeat</span>
+              <span id="footer-ws-status" class="footer-status-value status--online">
+                <span class="status-dot"></span> LINK ACTIVE
+              </span>
+            </div>
+            <div class="footer-status-row">
+              <span class="footer-status-label">Dashboard Version</span>
+              <span class="footer-status-value">v2.4.0 (PROD)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </footer>
+
+    <!-- Scripts — data first, then app logic -->
+    <script src="js/data.js"></script>
+    <script src="js/sonification.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+
+  <!-- Mirrored from artemis-tracker.netlify.app/ by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 05 Apr 2026 02:13:33 GMT -->
+</html>
+<!-- deploy trigger -->

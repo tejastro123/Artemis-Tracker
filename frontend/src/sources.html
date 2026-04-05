@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+  <!-- Mirrored from artemis-tracker.netlify.app/sources by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 05 Apr 2026 02:13:33 GMT -->
+  <!-- Added by HTTrack --><meta charset="utf-8" /><!-- /Added by HTTrack -->
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Data sources used by the Artemis II Mission Tracker — APIs, telemetry feeds, and open data."
+    />
+    <meta name="theme-color" content="#0a0e17" />
+    <title>Data Sources — Artemis II Mission Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <a id="skip-nav" class="skip-nav" href="#main-content"
+      >Skip to main content</a
+    >
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a
+          aria-label="Artemis II Mission Tracker — Home"
+          class="site-title"
+          href="index.html"
+        >
+          <span>Artemis II</span> Tracker
+        </a>
+
+        <div
+          id="data-status"
+          class="data-status data-status--prelaunch"
+          role="status"
+          aria-live="polite"
+        >
+          Pre-launch &mdash; data available after liftoff
+        </div>
+
+        <button
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="main-nav"
+          aria-label="Open menu"
+        >
+          <svg class="icon-menu" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+          <svg class="icon-close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M6 18L18 6" />
+          </svg>
+        </button>
+
+        <nav id="main-nav" class="site-nav" aria-label="Main navigation">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#timeline">Timeline</a></li>
+            <li><a href="crew.html">Crew</a></li>
+            <li><a href="crew-schedule.html">Crew Schedule</a></li>
+            <li><a href="spacecraft.html">Spacecraft</a></li>
+            <li><a href="index.html#news">News</a></li>
+            <li><a href="index.html#livestream">Live stream</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a aria-current="page" href="sources.html">Data Sources</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="section" aria-labelledby="sources-heading">
+        <div class="container">
+          <h1 id="sources-heading">Data Sources</h1>
+          <div class="about-text">
+            <p>
+              This tracker combines several public APIs and community-maintained
+              data feeds to present a real-time picture of the Artemis&nbsp;II
+              mission. Below is a complete list of every data source, what it
+              provides, and how often it updates.
+            </p>
+          </div>
+
+          <div class="sources-grid">
+            <!-- 1. Community Orbit API -->
+            <article class="source-card">
+              <h2 class="source-card__name">Community Orbit API</h2>
+              <p class="source-card__desc">
+                Computed orbital telemetry derived from JPL Horizons ephemeris
+                data, served by the community-run
+                <strong>artemis.cdnspace.ca</strong> relay. This is the
+                tracker&rsquo;s primary source for orbital position data.
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Provides</dt>
+                  <dd>
+                    Speed, altitude, distance from Earth, distance from Moon,
+                    range rate, solar phase angle, G-force estimates
+                  </dd>
+                </div>
+                <div>
+                  <dt>Update frequency</dt>
+                  <dd>Every 5 minutes</dd>
+                </div>
+                <div>
+                  <dt>Endpoint</dt>
+                  <dd><code>artemis.cdnspace.ca/api/orbit</code></dd>
+                </div>
+              </dl>
+              <p class="source-card__credit">
+                <a
+                  href="https://artemis.cdnspace.ca/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >artemis.cdnspace.ca<span class="sr-only">
+                    (opens in new tab)</span
+                  ></a
+                >
+                &mdash; community project
+              </p>
+            </article>
+
+            <!-- 2. AROW (Artemis Real-time Orbit Website) -->
+            <article class="source-card">
+              <h2 class="source-card__name">
+                AROW &mdash; Artemis Real-time Orbit Website
+              </h2>
+              <p class="source-card__desc">
+                Live spacecraft systems telemetry relayed through the community
+                API. Provides real-time attitude, angular rates, solar array
+                positions, antenna gimbals, and spacecraft mode data streamed
+                via Server-Sent Events (SSE).
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Provides</dt>
+                  <dd>
+                    Spacecraft attitude (roll/pitch/yaw), angular rates, solar
+                    array wing angles, antenna gimbal positions, spacecraft mode
+                  </dd>
+                </div>
+                <div>
+                  <dt>Update frequency</dt>
+                  <dd>
+                    ~1-second cadence (SSE stream), with 5-second polling
+                    fallback
+                  </dd>
+                </div>
+                <div>
+                  <dt>Endpoints</dt>
+                  <dd>
+                    <code>artemis.cdnspace.ca/api/arow/stream</code>
+                    (SSE)<br /><code>artemis.cdnspace.ca/api/arow</code>
+                    (polling fallback)
+                  </dd>
+                </div>
+              </dl>
+              <p class="source-card__credit">
+                <a
+                  href="https://artemis.cdnspace.ca/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >artemis.cdnspace.ca<span class="sr-only">
+                    (opens in new tab)</span
+                  ></a
+                >
+                &mdash; community relay of NASA AROW data
+              </p>
+            </article>
+
+            <!-- 3. Community DSN API -->
+            <article class="source-card">
+              <h2 class="source-card__name">Community DSN API</h2>
+              <p class="source-card__desc">
+                A community-hosted JSON feed of Deep Space Network contacts for
+                Artemis&nbsp;II. This is the tracker&rsquo;s primary DSN source,
+                providing faster updates and a cleaner format than the official
+                XML feed.
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Provides</dt>
+                  <dd>
+                    Active DSN dishes tracking Orion, station names, signal
+                    details, round-trip light time
+                  </dd>
+                </div>
+                <div>
+                  <dt>Update frequency</dt>
+                  <dd>Every 10 seconds</dd>
+                </div>
+                <div>
+                  <dt>Endpoint</dt>
+                  <dd><code>artemis.cdnspace.ca/api/dsn</code></dd>
+                </div>
+              </dl>
+              <p class="source-card__credit">
+                <a
+                  href="https://artemis.cdnspace.ca/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >artemis.cdnspace.ca<span class="sr-only">
+                    (opens in new tab)</span
+                  ></a
+                >
+                &mdash; community project
+              </p>
+            </article>
+
+            <!-- 4. NASA DSN Now XML -->
+            <article class="source-card">
+              <h2 class="source-card__name">NASA DSN Now</h2>
+              <p class="source-card__desc">
+                The official Deep Space Network real-time status feed from
+                NASA&rsquo;s Jet Propulsion Laboratory. Used as a fallback when
+                the community DSN API is unavailable. Provides detailed
+                dish-level data including signal strength, frequency bands, and
+                all spacecraft being tracked.
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Provides</dt>
+                  <dd>
+                    Dish names and sizes, uplink/downlink frequency and power,
+                    signal strength, all tracked spacecraft (not just Orion)
+                  </dd>
+                </div>
+                <div>
+                  <dt>Update frequency</dt>
+                  <dd>Every 60 seconds</dd>
+                </div>
+                <div>
+                  <dt>Endpoint</dt>
+                  <dd><code>eyes.nasa.gov/dsn/data/dsn.xml</code></dd>
+                </div>
+              </dl>
+              <p class="source-card__credit">
+                <a
+                  href="https://eyes.nasa.gov/dsn/dsn.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >NASA DSN Now<span class="sr-only">
+                    (opens in new tab)</span
+                  ></a
+                >
+                &mdash; NASA / Jet Propulsion Laboratory
+              </p>
+            </article>
+
+            <!-- 5. JPL Horizons -->
+            <article class="source-card">
+              <h2 class="source-card__name">JPL Horizons</h2>
+              <p class="source-card__desc">
+                NASA&rsquo;s ephemeris computation service, accessed through a
+                Netlify serverless function proxy. Provides precise orbital data
+                for spacecraft ID&nbsp;&minus;1024 (Orion). Used as a fallback
+                when the community orbit API is unavailable, and for 2-hour
+                historical sparkline data.
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Provides</dt>
+                  <dd>
+                    Distance from Earth, distance from Moon, altitude, velocity,
+                    position vectors
+                  </dd>
+                </div>
+                <div>
+                  <dt>Update frequency</dt>
+                  <dd>On demand (fallback source)</dd>
+                </div>
+                <div>
+                  <dt>Endpoint</dt>
+                  <dd>
+                    <code>ssd.jpl.nasa.gov/horizons_batch.cgi</code> (via
+                    Netlify proxy)
+                  </dd>
+                </div>
+              </dl>
+              <p class="source-card__credit">
+                <a
+                  href="https://ssd.jpl.nasa.gov/horizons/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >JPL Horizons<span class="sr-only">
+                    (opens in new tab)</span
+                  ></a
+                >
+                &mdash; NASA / Jet Propulsion Laboratory
+              </p>
+            </article>
+
+            <!-- 6. NASA DONKI (Space Weather) -->
+            <article class="source-card">
+              <h2 class="source-card__name">
+                NASA DONKI &mdash; Space Weather
+              </h2>
+              <p class="source-card__desc">
+                The Space Weather Database Of Notifications, Knowledge,
+                Information (DONKI) from NASA&rsquo;s Community Coordinated
+                Modeling Center. Provides solar activity data critical for
+                assessing crew radiation risk during deep-space transit.
+                Accessed via a Netlify serverless function.
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Provides</dt>
+                  <dd>
+                    Solar flare events, geomagnetic storm Kp index, coronal mass
+                    ejections, solar energetic particle events, overall risk
+                    assessment
+                  </dd>
+                </div>
+                <div>
+                  <dt>Update frequency</dt>
+                  <dd>Every 15 minutes</dd>
+                </div>
+                <div>
+                  <dt>Endpoint</dt>
+                  <dd>
+                    <code>ccmc.gsfc.nasa.gov/donki/</code> (via Netlify proxy)
+                  </dd>
+                </div>
+              </dl>
+              <p class="source-card__credit">
+                <a
+                  href="https://ccmc.gsfc.nasa.gov/donki/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >NASA DONKI<span class="sr-only"> (opens in new tab)</span></a
+                >
+                &mdash; NASA / Goddard Space Flight Center
+              </p>
+            </article>
+
+            <!-- 7. GitHub Data Repo (Schedule) -->
+            <article class="source-card">
+              <h2 class="source-card__name">
+                Mission Timeline &mdash; GitHub Data Repository
+              </h2>
+              <p class="source-card__desc">
+                A manually curated schedule of mission events maintained on
+                GitHub. The single source of truth for the mission timeline,
+                crew activities, and event descriptions. Compiled from NASA
+                press kits, mission blogs, and mission audio.
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Provides</dt>
+                  <dd>
+                    Mission events with timestamps, crew activity schedule,
+                    event descriptions and details, mission phase information
+                  </dd>
+                </div>
+                <div>
+                  <dt>Update frequency</dt>
+                  <dd>Manually updated; fetched once on page load</dd>
+                </div>
+                <div>
+                  <dt>Source</dt>
+                  <dd><code>github.com/jakobrosin/artemis-data</code></dd>
+                </div>
+              </dl>
+              <p class="source-card__credit">
+                <a
+                  href="https://github.com/jakobrosin/artemis-data"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >jakobrosin/artemis-data<span class="sr-only">
+                    (opens in new tab)</span
+                  ></a
+                >
+                &mdash; curated by Jakob Rosin
+              </p>
+            </article>
+
+            <!-- 8. News API -->
+            <article class="source-card">
+              <h2 class="source-card__name">Mission News</h2>
+              <p class="source-card__desc">
+                Aggregated news articles and updates about the Artemis&nbsp;II
+                mission, served through a Netlify serverless function that
+                fetches and filters relevant coverage.
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Provides</dt>
+                  <dd>News article titles, summaries, dates, and links</dd>
+                </div>
+                <div>
+                  <dt>Update frequency</dt>
+                  <dd>Every 5 minutes</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+
+          <div class="about-text" style="margin-top: 2.5rem">
+            <h2 id="data-priority">Data Priority &amp; Fallback Chain</h2>
+            <p>
+              The tracker uses a layered fallback strategy to maximise uptime.
+              If the primary source is unreachable, it automatically falls
+              through to the next available source:
+            </p>
+            <ul class="sources-fallback-list">
+              <li>
+                <strong>Orbital data:</strong> Community Orbit API &rarr; JPL
+                Horizons &rarr; pre-launch/mock state
+              </li>
+              <li>
+                <strong>Spacecraft telemetry:</strong> AROW SSE stream &rarr;
+                AROW polling endpoint
+              </li>
+              <li>
+                <strong>DSN tracking:</strong> Community DSN API (10&thinsp;s)
+                &rarr; NASA DSN Now XML (60&thinsp;s)
+              </li>
+              <li>
+                <strong>Mission timeline:</strong> GitHub schedule.json &rarr;
+                built-in fallback events
+              </li>
+            </ul>
+          </div>
+
+          <div class="about-text" style="margin-top: 2rem">
+            <h2 id="disclaimer">Disclaimer</h2>
+            <p>
+              This tracker is a fan project and is not affiliated with NASA,
+              JPL, ESA, or the Canadian Space Agency. All data is provided as-is
+              for informational and educational purposes. Orbital data shown is
+              estimated from publicly available ephemeris and telemetry feeds;
+              it should not be used for mission-critical purposes.
+            </p>
+
+            <!-- Audio Beat -->
+            <article class="source-card">
+              <h2 class="source-card__name">Audio Radar Beat</h2>
+              <p class="source-card__desc">
+                Original beat loop for the Audio Radar, synced to the 3-second
+                sweep cycle. Created by Andre Louis, AKA Freaky Fwoof.
+              </p>
+              <dl class="source-card__meta">
+                <div>
+                  <dt>Format</dt>
+                  <dd>WAV, looped</dd>
+                </div>
+                <div>
+                  <dt>Tempo</dt>
+                  <dd>132 BPM</dd>
+                </div>
+              </dl>
+              <p class="source-card__credit">
+                <a
+                  href="https://onj.me/youtube"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Andre Louis (Freaky Fwoof)<span class="sr-only">
+                    (opens in new tab)</span
+                  ></a
+                >
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          Built by Jakob Rosin, for Jakob Rosin — and every other space nerd who
+          stayed up for launch night.
+          <a href="mailto:jakob.rsn@gmail.com">jakob.rsn@gmail.com</a> &middot;
+          <a href="https://universeodon.com/@jakobrosin" rel="me">Mastodon</a>
+        </p>
+        <p>
+          Data from NASA JPL Horizons &amp; DONKI. Not affiliated with NASA.
+          &middot; <a href="sources.html">Data Sources</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+
+  <!-- Mirrored from artemis-tracker.netlify.app/sources by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 05 Apr 2026 02:13:33 GMT -->
+</html>

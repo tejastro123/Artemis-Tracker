@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <!-- Mirrored from artemis-tracker.netlify.app/spacecraft by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 05 Apr 2026 02:13:33 GMT -->
+  <!-- Added by HTTrack --><meta charset="utf-8" /><!-- /Added by HTTrack -->
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Artemis II spacecraft and systems: Orion crew capsule, heat shield, ECLSS life support, European Service Module, and SLS rocket."
+    />
+    <meta name="theme-color" content="#0a0e17" />
+    <title>Spacecraft — Artemis II Mission Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <a id="skip-nav" class="skip-nav" href="#main-content"
+      >Skip to main content</a
+    >
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a
+          aria-label="Artemis II Mission Tracker — Home"
+          class="site-title"
+          href="index.html"
+        >
+          <span>Artemis II</span> Tracker
+        </a>
+
+        <div
+          id="data-status"
+          class="data-status data-status--prelaunch"
+          role="status"
+          aria-live="polite"
+        >
+          Pre-launch &mdash; data available after liftoff
+        </div>
+
+        <button
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="main-nav"
+          aria-label="Open menu"
+        >
+          <svg class="icon-menu" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+          <svg class="icon-close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M6 18L18 6" />
+          </svg>
+        </button>
+
+        <nav id="main-nav" class="site-nav" aria-label="Main navigation">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#timeline">Timeline</a></li>
+            <li><a href="crew.html">Crew</a></li>
+            <li><a href="crew-schedule.html">Crew Schedule</a></li>
+            <li>
+              <a aria-current="page" href="spacecraft.html">Spacecraft</a>
+            </li>
+            <li><a href="index.html#news">News</a></li>
+            <li><a href="index.html#livestream">Live stream</a></li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="section" aria-labelledby="spacecraft-heading">
+        <div class="container">
+          <h1 id="spacecraft-heading">Spacecraft &amp; Systems</h1>
+          <p class="section-intro">
+            The hardware that will carry four astronauts around the Moon and
+            safely back to Earth.
+          </p>
+
+          <!-- High-Fidelity: Live System Monitor -->
+          <div id="live-systems-monitor" class="live-monitor">
+            <!-- Populated by JS -->
+          </div>
+
+          <div
+            id="spacecraft-specs"
+            class="specs-grid"
+            role="region"
+            aria-label="Spacecraft specifications"
+          >
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          Data from NASA AROW. Not affiliated with NASA. Built by Jakob Rosin.
+        </p>
+        <p>All times in local time. Metric units with imperial equivalents.</p>
+      </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+
+  <!-- Mirrored from artemis-tracker.netlify.app/spacecraft by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 05 Apr 2026 02:13:33 GMT -->
+</html>

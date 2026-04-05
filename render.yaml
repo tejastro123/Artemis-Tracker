@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: artemis-tracker-yexp
+    env: node
+    plan: free
+    root: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: NASA_API_KEY
+        sync: false
+      - key: ADMIN_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "https://artemis-tracker-two.vercel.app" # Your Vercel frontend URL

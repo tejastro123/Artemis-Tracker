@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "public": true,
+  "name": "artemis-tracker",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/frontend/src/$1" }
+  ]
+}
