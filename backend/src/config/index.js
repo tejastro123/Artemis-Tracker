@@ -23,7 +23,7 @@ module.exports = {
   },
 
   CORS: {
-    ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean),
+    ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS || 'https://artemis-tracker-two.vercel.app').split(',').filter(Boolean),
   },
 
   CONSTANTS: {

@@ -10,7 +10,7 @@
   // Detect if running locally or in production
   var BACKEND_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('192.168.'))
     ? 'http://localhost:3001'
-    : 'https://artemis-tracker-yexp.onrender.com'; // Actual Render backend URL
+    : 'https://artemis-tracker-mzav.onrender.com'; // Actual Render backend URL
   
   var API_BASE = BACKEND_BASE + '/api/v1';
   var MEDIA_API_URL = API_BASE + '/media';
