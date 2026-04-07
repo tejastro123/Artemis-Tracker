@@ -1,5 +1,6 @@
 const logger = require('../../utils/logger');
 const NewsItem = require('../models/NewsItem');
+const { InternalServerError } = require('../../utils/errors');
 
 class NewsQueries {
   /**
@@ -23,8 +24,8 @@ class NewsQueries {
       );
       return results.map(r => r._id);
     } catch (err) {
-      logger.error({ err, items }, 'Failed to upsert news items into MongoDB');
-      throw err;
+      logger.error({ err, items }, 'Database: Failed to upsert news items');
+      throw new InternalServerError('Failed to save news items');
     }
   }
 
@@ -38,7 +39,7 @@ class NewsQueries {
         .limit(limit)
         .lean();
     } catch (err) {
-      logger.error({ err, limit }, 'Failed to retrieve latest news items from MongoDB');
+      logger.error({ err, limit }, 'Database: Failed to retrieve latest news items');
       return [];
     }
   }

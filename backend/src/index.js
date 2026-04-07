@@ -28,16 +28,21 @@ setGlobalDispatcher(new Agent({
 }));
 
 async function main() {
-  logger.info('Starting Artemis II Backend (MongoDB/In-Memory Cache Mode)...');
+  logger.info('Starting Artemis II Backend (Production-Ready Mode)...');
 
   // Connect to MongoDB (Atlas)
   try {
-    await mongoose.connect(config.MONGODB.URI);
+    await mongoose.connect(config.DATABASE.MONGODB_URI);
     logger.info('Connected to MongoDB Atlas');
   } catch (err) {
     logger.fatal({ err }, 'Failed to connect to MongoDB');
     process.exit(1);
   }
+
+  // Handle mongoose connection errors after initial connection
+  mongoose.connection.on('error', (err) => {
+    logger.error({ err }, 'MongoDB connection error');
+  });
 
   // Initialize CacheManager (In-Memory)
   const cache = new CacheManager();

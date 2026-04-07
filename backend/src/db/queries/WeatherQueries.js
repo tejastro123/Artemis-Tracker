@@ -1,5 +1,6 @@
 const logger = require('../../utils/logger');
 const WeatherSnapshot = require('../models/WeatherSnapshot');
+const { InternalServerError } = require('../../utils/errors');
 
 class WeatherQueries {
   /**
@@ -11,8 +12,8 @@ class WeatherQueries {
       const saved = await snapshot.save();
       return saved._id;
     } catch (err) {
-      logger.error({ err }, 'Failed to insert weather snapshot into MongoDB');
-      throw err;
+      logger.error({ err }, 'Database: Failed to insert weather snapshot');
+      throw new InternalServerError('Failed to save weather data');
     }
   }
 
@@ -25,7 +26,7 @@ class WeatherQueries {
         .sort({ queriedAt: -1 })
         .lean();
     } catch (err) {
-      logger.error({ err }, 'Failed to retrieve latest weather snapshot from MongoDB');
+      logger.error({ err }, 'Database: Failed to retrieve latest weather snapshot');
       return null;
     }
   }

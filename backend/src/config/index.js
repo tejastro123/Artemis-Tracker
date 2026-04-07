@@ -1,12 +1,13 @@
 require('dotenv').config();
 
-module.exports = {
+const config = {
   NODE_ENV: process.env.NODE_ENV || 'development',
-  PORT: process.env.PORT || 3001,
+  PORT: parseInt(process.env.PORT, 10) || 3001,
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 
-  MONGODB: {
-    URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/artemis2',
+  DATABASE: {
+    MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/artemis2',
+    POSTGRES_URL: process.env.DATABASE_URL || process.env.POSTGRES_URL,
   },
 
   NASA: {
@@ -15,7 +16,7 @@ module.exports = {
 
   COMMUNITY_API: {
     BASE: process.env.COMMUNITY_API_BASE || 'https://artemis.cdnspace.ca',
-    TIMEOUT_MS: parseInt(process.env.COMMUNITY_API_TIMEOUT_MS, 10) || 8000,
+    TIMEOUT_MS: parseInt(process.env.COMMUNITY_API_TIMEOUT_MS, 10) || 30000,
   },
 
   ADMIN: {
@@ -23,15 +24,24 @@ module.exports = {
   },
 
   CORS: {
-    ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS || 'https://artemis-tracker-two.vercel.app').split(',').filter(Boolean),
+    ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,https://artemis-tracker-two.vercel.app').split(',').map(o => o.trim()).filter(Boolean),
   },
 
   CONSTANTS: {
     LAUNCH_EPOCH_UTC: new Date('2026-04-01T22:35:12Z'),
-    COMMUNITY_ORBIT_POLL_MS: 300000,
-    DSN_POLL_MS: 10000,
-    WEATHER_POLL_MS: 900000,
-    NEWS_POLL_MS: 300000,
-    TELEMETRY_POLL_MS: 30000,
+    POLL_INTERVALS: {
+      TELEMETRY: parseInt(process.env.TELEMETRY_POLL_MS, 10) || 30000,
+      DSN: parseInt(process.env.DSN_POLL_MS, 10) || 10000,
+      WEATHER: parseInt(process.env.WEATHER_POLL_MS, 10) || 900000,
+      NEWS: parseInt(process.env.NEWS_POLL_MS, 10) || 300000,
+      COMMUNITY_ORBIT: parseInt(process.env.COMMUNITY_ORBIT_POLL_MS, 10) || 300000,
+    }
   },
 };
+
+// Simple validation
+if (config.NODE_ENV === 'production' && config.ADMIN.API_KEY === 'change_me_in_production') {
+  console.warn('WARNING: ADMIN_API_KEY is still using the default value in production!');
+}
+
+module.exports = config;

@@ -1,5 +1,6 @@
 const logger = require('../../utils/logger');
 const TelemetrySnapshot = require('../models/TelemetrySnapshot');
+const { InternalServerError } = require('../../utils/errors');
 
 class TelemetryQueries {
   /**
@@ -19,8 +20,8 @@ class TelemetryQueries {
       const saved = await snapshot.save();
       return saved._id;
     } catch (err) {
-      logger.error({ err, telemetry }, 'Failed to insert telemetry snapshot into MongoDB');
-      throw err;
+      logger.error({ err, telemetry }, 'Database: Failed to insert telemetry snapshot');
+      throw new InternalServerError('Failed to save telemetry data');
     }
   }
 
@@ -41,7 +42,7 @@ class TelemetryQueries {
         captured_at: h.capturedAt
       }));
     } catch (err) {
-      logger.error({ err, hours }, 'Failed to retrieve telemetry history from MongoDB');
+      logger.error({ err, hours }, 'Database: Failed to retrieve telemetry history');
       return [];
     }
   }

@@ -2,12 +2,13 @@ const logger = require('../utils/logger');
 
 /**
  * In-memory CacheManager implementation.
- * Replaces Redis for local, high-speed, volatile caching.
+ * Unified interface for volatile data caching without external dependencies.
  */
 class CacheManager {
   constructor() {
     this.cache = new Map();
     this.ttls = new Map();
+    logger.info('CacheManager: In-memory storage initialized');
   }
 
   async get(key) {
@@ -31,7 +32,6 @@ class CacheManager {
   }
 
   async invalidatePattern(pattern) {
-    // Basic glob-like pattern matching (e.g. "news:*")
     const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
     for (const key of this.cache.keys()) {
       if (regex.test(key)) {

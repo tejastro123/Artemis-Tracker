@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const config = require('./config');
 const logger = require('./utils/logger');
+const { AppError, NotFoundError } = require('./utils/errors');
 
 // Routes
 const telemetryRoutes = require('./routes/telemetry');
@@ -13,37 +15,41 @@ const newsRoutes = require('./routes/news');
 const timelineRoutes = require('./routes/timeline');
 const healthRoutes = require('./routes/health');
 const mediaRoutes = require('./routes/media');
-const path = require('path');
 
 module.exports = function createApp({ services }) {
   const app = express();
 
-  // Middleware
+  // Security & Utility Middleware
   app.use(helmet());
   app.use(cors({
     origin: function (origin, callback) {
       if (!origin || config.NODE_ENV === 'development') {
         return callback(null, true);
       }
-
-      // Normalize origin and allowed origins to ignore trailing slashes
       const normalizedOrigin = origin.replace(/\/$/, "");
       const isAllowed = config.CORS.ALLOWED_ORIGINS.some(allowed => 
         allowed.replace(/\/$/, "") === normalizedOrigin
       );
-
       if (isAllowed) {
         callback(null, true);
       } else {
-        // Return false instead of an error to prevent server crashes
         callback(null, false);
       }
     },
     methods: ['GET', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept'],
   }));
-  app.use(morgan('combined', { stream: { write: (msg) => logger.info(msg.trim()) } }));
+
+  // Request logging using pino-aware morgan stream
+  app.use(morgan('combined', { 
+    stream: { write: (msg) => logger.info(msg.trim()) },
+    skip: (req, res) => req.url === '/api/v1/health' // Skip health checks in logs
+  }));
+
   app.use(express.json());
+
+  // Static Media Serving
+  app.use('/public', express.static(path.join(__dirname, '../public')));
 
   // API Routes
   app.use('/api/v1/telemetry', telemetryRoutes(services.telemetry));
@@ -54,19 +60,45 @@ module.exports = function createApp({ services }) {
   app.use('/api/v1/health', healthRoutes());
   app.use('/api/v1/media', mediaRoutes());
 
-  // Static Media Serving
-  app.use('/public', express.static(path.join(__dirname, '../public')));
-
   // Root route
   app.get('/', (req, res) => {
-    res.json({ name: 'Artemis II API', version: '1.0.0' });
+    res.json({ 
+      name: 'Artemis II API', 
+      version: '1.0.0',
+      status: 'operational',
+      timestamp: new Date().toISOString()
+    });
   });
 
-  // Error handling
+  // Handle undefined routes
+  app.all('*', (req, res, next) => {
+    next(new NotFoundError(`Can't find ${req.originalUrl} on this server!`));
+  });
+
+  // Global Error handling
   app.use((err, req, res, next) => {
-    logger.error({ err, path: req.path }, 'Unhandled API error');
-    res.status(err.status || 500).json({
-      error: config.NODE_ENV === 'production' ? 'Internal Server Error' : err.message
+    err.statusCode = err.statusCode || 500;
+    err.status = err.status || 'error';
+
+    // Log the error
+    if (err.statusCode >= 500) {
+      logger.error({ 
+        err, 
+        path: req.path,
+        method: req.method,
+        query: req.query,
+        body: req.body 
+      }, 'Critical API error');
+    } else {
+      logger.warn({ err, path: req.path }, 'API error');
+    }
+
+    res.status(err.statusCode).json({
+      status: err.status,
+      error: config.NODE_ENV === 'production' && err.statusCode === 500
+        ? 'Internal Server Error' 
+        : err.message,
+      ...(config.NODE_ENV === 'development' && { stack: err.stack })
     });
   });
 
