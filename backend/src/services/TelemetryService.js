@@ -35,18 +35,38 @@ class TelemetryService {
     // 1. Try community consolidated API
     try {
       const all = await communityApi.getAll();
-      
-      const orbit = all?.telemetry || all?.orbit || null;
-      const systems = all?.arow || null;
 
-      if (all?.telemetry?.speedKmH != null || all?.arow?.eulerDeg != null) {
-        const telemetry = this._normalizeCommunityResponse(all, metH);
+      const telemetry = this._normalizeIfLiveCommunityPayload(all, metH);
+      if (telemetry) {
         telemetry.raw = all;
         await this._saveSnapshot(telemetry);
         return { ...telemetry, _source: 'community-consolidated' };
       }
     } catch (err) {
       logger.warn({ err }, 'Consolidated AROW API fetch failed');
+    }
+
+    // 1b. If /api/all is unavailable or incomplete, combine the direct
+    // community endpoints so we can still surface live orbital data.
+    try {
+      const [orbit, systems] = await Promise.all([
+        communityApi.getOrbit(),
+        communityApi.getArow()
+      ]);
+
+      const directPayload = {
+        telemetry: orbit,
+        arow: systems
+      };
+
+      const telemetry = this._normalizeIfLiveCommunityPayload(directPayload, metH);
+      if (telemetry) {
+        telemetry.raw = directPayload;
+        await this._saveSnapshot(telemetry);
+        return { ...telemetry, _source: 'community-consolidated' };
+      }
+    } catch (err) {
+      logger.warn({ err }, 'Direct community telemetry fetch failed');
     }
 
     // 2. Try JPL Horizons
@@ -74,6 +94,49 @@ class TelemetryService {
     // but cache it for fast delivery.
     await this.cache.set(this.CACHE_KEY, telemetry, this.CACHE_TTL);
     return telemetry;
+  }
+
+  _normalizeIfLiveCommunityPayload(all, metH) {
+    if (!all) return null;
+
+    const orbit = all?.telemetry || all?.orbit || null;
+    const systems = all?.arow || null;
+
+    if (!this._hasCommunityOrbit(orbit) && !this._hasArowSystems(systems)) {
+      return null;
+    }
+
+    return this._normalizeCommunityResponse(all, metH);
+  }
+
+  _hasCommunityOrbit(orbit) {
+    if (!orbit) return false;
+
+    return [
+      orbit.speedKmH,
+      orbit.speedKmh,
+      orbit.earthDistKm,
+      orbit.distEarthKm,
+      orbit.moonDistKm,
+      orbit.distMoonKm,
+      orbit.altitudeKm,
+      orbit.metMs
+    ].some(value => Number.isFinite(value));
+  }
+
+  _hasArowSystems(systems) {
+    if (!systems) return false;
+
+    return Boolean(
+      systems.eulerDeg ||
+      systems.quaternion ||
+      systems.sawAngles ||
+      systems.antennaGimbal ||
+      systems.rollRate != null ||
+      systems.pitchRate != null ||
+      systems.yawRate != null ||
+      systems.spacecraftMode != null
+    );
   }
 
   _normalizeCommunityResponse(all, metH) {
@@ -108,10 +171,10 @@ class TelemetryService {
         yaw: systems.eulerDeg.yaw
       } : (systems?.quaternion ? trajMath.quaternionToEuler(systems.quaternion) : null),
       
-      angularRates: (systems?.rollRate != null) ? {
-        roll: systems.rollRate,
-        pitch: systems.pitchRate,
-        yaw: systems.yawRate
+      angularRates: (systems?.rollRate != null || systems?.rollRateFallback != null) ? {
+        roll: systems.rollRate ?? systems.rollRateFallback,
+        pitch: systems.pitchRate ?? systems.pitchRateFallback,
+        yaw: systems.yawRate ?? systems.yawRateFallback
       } : null,
 
       solarArrays: systems?.sawAngles ? {

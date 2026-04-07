@@ -1289,7 +1289,7 @@ window.onerror = function (msg, url, line) {
       // Data status
       if (dom.dataStatus) {
         if (dataSource === 'live' || dataSource === 'community-consolidated') {
-          dom.dataStatus.textContent = 'Live data via NASA AROW (consolidated)';
+          dom.dataStatus.textContent = 'Real-time orbital data via AROW';
           dom.dataStatus.className = 'data-status data-status--live';
         } else if (dataSource === 'horizons') {
           dom.dataStatus.textContent = 'Live orbital data via JPL Horizons';

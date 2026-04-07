@@ -70,8 +70,9 @@ module.exports = function createApp({ services }) {
     });
   });
 
-  // Handle undefined routes
-  app.all('*', (req, res, next) => {
+  // Express 5 rejects a bare "*" route, so use a final catch-all middleware
+  // after all known routes have been registered.
+  app.use((req, res, next) => {
     next(new NotFoundError(`Can't find ${req.originalUrl} on this server!`));
   });
 
