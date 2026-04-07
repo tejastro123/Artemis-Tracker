@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const timelineSnapshotSchema = new mongoose.Schema({
-  activities: [Object], // [ { timestamp, title, description, phase, type } ]
+  milestones: [Object],
+  activities: [Object],
+  phases: [Object],
   source: { type: String, default: 'community-timeline' },
   capturedAt: { type: Date, default: Date.now },
   raw: mongoose.Schema.Types.Mixed
