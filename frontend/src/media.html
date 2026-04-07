@@ -180,20 +180,35 @@
 </head>
 <body>
     <header class="site-header">
-        <div class="container site-header__inner">
-            <a class="site-title" href="index.html">
-                <span>Artemis II</span> Tracker
-            </a>
-            <nav class="site-nav">
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="media.html" aria-current="page">Gallery</a></li>
-                    <li><a href="crew.html">Crew</a></li>
-                    <li><a href="spacecraft.html">Spacecraft</a></li>
-                    <li><a href="about.html">About</a></li>
-                </ul>
-            </nav>
+      <div class="container site-header__inner">
+        <a aria-label="Artemis II Mission Tracker — Home" class="site-title" href="index.html">
+          <span>Artemis II</span> Tracker
+        </a>
+
+        <div id="data-status" class="data-status data-status--prelaunch" role="status" aria-live="polite">
+          Pre-launch &mdash; data available after liftoff
         </div>
+
+        <button class="nav-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Open menu">
+          <svg class="icon-menu" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+          <svg class="icon-close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M6 18L18 6" />
+          </svg>
+        </button>
+
+        <nav id="main-nav" class="site-nav" aria-label="Main navigation">
+          <ul>
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="index.html#timeline">Timeline</a></li>
+            <li><a href="crew.html">Crew</a></li>
+            <li><a href="spacecraft.html">Vehicle</a></li>
+            <li><a aria-current="page" href="media.html">Gallery</a></li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+        </nav>
+      </div>
     </header>
 
     <main class="container">

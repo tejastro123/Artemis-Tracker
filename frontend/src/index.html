@@ -68,21 +68,14 @@
 
         <nav id="main-nav" class="site-nav" aria-label="Main navigation">
           <ul>
-            <li><a aria-current="page" href="index.html">Home</a></li>
-            <li><a href="media.html">Gallery</a></li>
-            <li><a href="#dashboard">Live Data</a></li>
-            <li><a href="#spacecraft-telemetry">Telemetry</a></li>
-            <li><a href="#space-weather">Space Weather</a></li>
-            <li><a href="#dsn">DSN</a></li>
-            <li><a href="#audio-radar">Audio Radar</a></li>
-            <li><a href="#livestream">Live Coverage</a></li>
+            <li><a aria-current="page" href="index.html">Dashboard</a></li>
             <li><a href="#timeline">Timeline</a></li>
+            <li><a href="#dashboard">Telemetry</a></li>
             <li><a href="#news">News</a></li>
+            <li><a href="media.html">Gallery</a></li>
             <li><a href="crew.html">Crew</a></li>
-            <li><a href="crew-schedule.html">Crew Schedule</a></li>
-            <li><a href="spacecraft.html">Spacecraft</a></li>
+            <li><a href="spacecraft.html">Vehicle</a></li>
             <li><a href="about.html">About</a></li>
-            <li><a href="sources.html">Data Sources</a></li>
           </ul>
         </nav>
       </div>
@@ -94,9 +87,9 @@
         
         <!-- ARTEMIS II LIVE -->
         <div class="status-widget">
-          <span class="status-label">ARTEMIS II</span>
+          <span class="status-label">Mission</span>
           <span id="sub-nav-mission" class="status-value status-value--live">
-            <span class="status-dot"></span> LIVE
+            <span class="status-dot"></span> ARTEMIS II
           </span>
         </div>
 
@@ -108,60 +101,40 @@
 
         <!-- PHASE -->
         <div class="status-widget">
-          <span class="status-label">PHASE</span>
+          <span class="status-label">Phase</span>
           <span id="sub-nav-phase" class="status-value status-value--phase">PRE-LAUNCH</span>
         </div>
 
-        <!-- DAY -->
-        <div class="status-widget">
-          <span class="status-label">DAY</span>
-          <span id="sub-nav-day" class="status-value status-value--day">FD00</span>
+        <!-- VELOCITY -->
+        <div class="status-widget status-widget--telemetry">
+          <span class="status-label">Velocity</span>
+          <span id="sub-nav-vel" class="status-value">0 km/h</span>
+        </div>
+
+        <!-- ALTITUDE -->
+        <div class="status-widget status-widget--telemetry">
+          <span class="status-label">Altitude</span>
+          <span id="sub-nav-alt" class="status-value">0 km</span>
         </div>
 
         <!-- DSN -->
         <div class="status-widget">
           <span class="status-label">DSN</span>
           <span id="sub-nav-dsn" class="status-value status-value--dsn">
-            <span class="status-dot"></span> SCANNING
+            SCANNING
           </span>
         </div>
 
         <!-- CREW -->
         <div class="status-widget">
-          <span class="status-label">CREW</span>
+          <span class="status-label">Crew</span>
           <span id="sub-nav-crew" class="status-value">NOMINAL</span>
-        </div>
-
-        <!-- TOILET -->
-        <div class="status-widget">
-          <span class="status-label">TOILET</span>
-          <span id="sub-nav-toilet" class="status-value status-value--go">
-            <span class="status-dot"></span> GO
-          </span>
-        </div>
-
-        <!-- VELOCITY -->
-        <div class="status-widget status-widget--telemetry">
-          <span class="status-label">VEL</span>
-          <span id="sub-nav-vel" class="status-value">0 km/h</span>
-        </div>
-
-        <!-- ALTITUDE -->
-        <div class="status-widget status-widget--telemetry">
-          <span class="status-label">ALT</span>
-          <span id="sub-nav-alt" class="status-value">0 km</span>
         </div>
 
         <!-- SLEEP -->
         <div class="status-widget">
-          <span class="status-label">SLEEP</span>
+          <span class="status-label">Sleep</span>
           <span id="sub-nav-sleep" class="status-value status-value--countdown">--h --m</span>
-        </div>
-
-        <!-- VEHICLE -->
-        <div class="status-widget">
-          <span class="status-label">VEHICLE</span>
-          <span id="sub-nav-vehicle" class="status-value">ORION</span>
         </div>
 
       </div>
@@ -190,14 +163,17 @@
           <p id="mission-phase" class="hero__phase">PRE-LAUNCH</p>
 
           <p id="hero-status" class="hero__status">
-            Countdown to launch is active.
+            NASA's first crewed mission to the Moon in over 50 years.
           </p>
 
           <div class="hero__met" role="timer" aria-labelledby="met-label">
-            <span id="met-label" class="hero__met-label"
-              >Countdown to Launch</span
-            >
+            <span id="met-label" class="hero__met-label">Mission Clock</span>
             <span id="val-met">L- 00h 00m 00s</span>
+          </div>
+
+          <div class="hero__actions">
+            <a href="#dashboard" class="btn">View Live Telemetry</a>
+            <a href="#timeline" class="btn btn--secondary">Mission Timeline</a>
           </div>
 
           <div class="hero__crew-activity">
@@ -205,9 +181,6 @@
               Pre-launch preparations
             </p>
             <p id="crew-activity-next" class="hero__crew-next"></p>
-            <a href="#timeline" class="hero__crew-link"
-              >View full schedule &rarr;</a
-            >
           </div>
         </div>
       </section>
