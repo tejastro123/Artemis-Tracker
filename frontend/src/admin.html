@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mission Control - Artemis II</title>
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <meta name="theme-color" content="#050814" />
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .admin-page {
+        min-height: 100vh;
+        padding: 6rem 0 4rem;
+      }
+
+      .admin-shell {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      .admin-hero {
+        display: grid;
+        gap: 1rem;
+        padding: 1.6rem;
+        border-radius: 1.4rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+          radial-gradient(circle at top right, rgba(0, 242, 255, 0.18), transparent 30%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.26);
+      }
+
+      .admin-hero__eyebrow {
+        margin: 0;
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .admin-hero h1 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 0.95;
+      }
+
+      .admin-hero p {
+        margin: 0;
+        max-width: 46rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+      }
+
+      .admin-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+      }
+
+      .admin-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.8rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .admin-link:hover,
+      .admin-link:focus-visible {
+        background: rgba(0, 242, 255, 0.08);
+        border-color: rgba(0, 242, 255, 0.24);
+        color: var(--accent);
+      }
+
+      .admin-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+        gap: 1.5rem;
+      }
+
+      .admin-panel {
+        display: grid;
+        gap: 1rem;
+        padding: 1.35rem;
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+      }
+
+      .admin-panel[hidden] {
+        display: none;
+      }
+
+      .admin-panel h2,
+      .admin-panel h3,
+      .admin-panel h4 {
+        margin: 0;
+      }
+
+      .admin-panel p {
+        margin: 0;
+      }
+
+      .admin-form,
+      .admin-login {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .admin-form__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .admin-form__field {
+        display: grid;
+        gap: 0.55rem;
+      }
+
+      .admin-form__field label,
+      .admin-form__legend {
+        color: var(--text-bright);
+        font-size: 0.88rem;
+        font-weight: 700;
+      }
+
+      .admin-form__field input,
+      .admin-form__field textarea,
+      .admin-form__field select {
+        width: 100%;
+        padding: 0.9rem 0.95rem;
+        border-radius: 0.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(10, 14, 23, 0.78);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .admin-form__field textarea {
+        min-height: 7rem;
+        resize: vertical;
+      }
+
+      .admin-form__toggles {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+      }
+
+      .admin-form__toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.8rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .admin-form__toggle input {
+        accent-color: var(--accent);
+      }
+
+      .admin-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.9rem;
+      }
+
+      .admin-button,
+      .admin-button--ghost {
+        min-height: 3rem;
+        padding: 0.85rem 1.15rem;
+        border-radius: 0.9rem;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .admin-button {
+        border: 1px solid rgba(0, 242, 255, 0.22);
+        background: rgba(0, 242, 255, 0.08);
+        color: var(--accent);
+      }
+
+      .admin-button:hover,
+      .admin-button:focus-visible {
+        background: rgba(0, 242, 255, 0.14);
+        color: var(--text-bright);
+      }
+
+      .admin-button--ghost {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+      }
+
+      .admin-button--ghost:hover,
+      .admin-button--ghost:focus-visible {
+        background: rgba(255, 255, 255, 0.09);
+      }
+
+      .admin-status {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      .admin-status--success {
+        color: #86efac;
+      }
+
+      .admin-status--error {
+        color: #fda4af;
+      }
+
+      .admin-note {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        line-height: 1.65;
+      }
+
+      .admin-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+      }
+
+      .admin-summary__card {
+        padding: 1rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .admin-summary__value {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-bright);
+      }
+
+      .admin-summary__label {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .admin-list {
+        display: grid;
+        gap: 0.85rem;
+      }
+
+      .admin-list__item {
+        padding: 0.95rem 1rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .admin-list__meta {
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .admin-list__title {
+        margin-top: 0.35rem;
+        color: var(--text-bright);
+        font-weight: 700;
+      }
+
+      .admin-list__desc {
+        margin-top: 0.3rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+
+      .admin-locked {
+        min-height: 18rem;
+        align-content: center;
+      }
+
+      @media (max-width: 960px) {
+        .admin-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .admin-form__grid,
+        .admin-summary {
+          grid-template-columns: 1fr;
+        }
+
+        .admin-actions,
+        .admin-hero__actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .admin-button,
+        .admin-button--ghost,
+        .admin-link {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="star-field"></div>
+    <div class="scanline"></div>
+
+    <main class="container admin-page">
+      <div class="admin-shell">
+        <section class="admin-hero">
+          <p class="admin-hero__eyebrow">Mission Control</p>
+          <h1>Artemis II Admin Console</h1>
+          <p>
+            Manual posting for Google Drive media, YouTube links, direct video files, PDFs, documents, and other
+            uploaded assets. Public mission news stays on the existing automated feed.
+          </p>
+          <div class="admin-hero__actions">
+            <a class="admin-link" href="index.html">Return to Dashboard</a>
+            <a class="admin-link" href="media.html">Open Public Media Page</a>
+          </div>
+        </section>
+
+        <section id="admin-locked-panel" class="admin-panel admin-locked">
+          <h2>Restricted Console</h2>
+          <p class="admin-note">
+            This page is not part of the public navigation. Use the private shortcut to unlock admin sign-in for
+            this browser tab.
+          </p>
+          <p id="admin-locked-status" class="admin-status">Awaiting shortcut unlock.</p>
+        </section>
+
+        <section id="admin-login-panel" class="admin-panel" hidden>
+          <h2>Admin Sign In</h2>
+          <p class="admin-note">Shortcut accepted. Sign in with the admin credential to open the console.</p>
+
+          <form id="admin-login-form" class="admin-login">
+            <div class="admin-form__field">
+              <label for="admin-password">Admin Password</label>
+              <input
+                id="admin-password"
+                name="admin-password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Enter the admin credential"
+                required
+              />
+            </div>
+
+            <div class="admin-actions">
+              <button id="admin-login-submit" class="admin-button" type="submit">Sign In</button>
+              <p id="admin-login-status" class="admin-status" role="status" aria-live="polite">
+                Sign in to open the posting console.
+              </p>
+            </div>
+          </form>
+        </section>
+
+        <section id="admin-console-panel" class="admin-grid" hidden>
+          <div class="admin-panel">
+            <div class="admin-actions">
+              <button id="admin-logout" class="admin-button--ghost" type="button">Log Out</button>
+              <p id="admin-session-status" class="admin-status admin-status--success">
+                Admin session active.
+              </p>
+            </div>
+
+            <form id="admin-media-form" class="admin-form">
+              <div class="admin-form__field">
+                <span class="admin-form__legend">Submission Mode</span>
+                <div class="admin-form__toggles">
+                  <label class="admin-form__toggle" for="admin-mode-url">
+                    <input id="admin-mode-url" type="radio" name="admin-mode" value="url" checked />
+                    <span>Use URL</span>
+                  </label>
+                  <label class="admin-form__toggle" for="admin-mode-upload">
+                    <input id="admin-mode-upload" type="radio" name="admin-mode" value="upload" />
+                    <span>Upload File</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="admin-form__grid">
+                <div class="admin-form__field">
+                  <label for="admin-type">Type</label>
+                  <select id="admin-type" name="admin-type">
+                    <option value="image">Image</option>
+                    <option value="video">Video</option>
+                    <option value="document">Document</option>
+                    <option value="other">Other File</option>
+                  </select>
+                </div>
+
+                <div class="admin-form__field">
+                  <label for="admin-title">Title</label>
+                  <input id="admin-title" name="admin-title" type="text" placeholder="Mission asset title" required />
+                </div>
+
+                <div class="admin-form__field">
+                  <label for="admin-category">Category</label>
+                  <input id="admin-category" name="admin-category" type="text" placeholder="mission, docs, archive..." />
+                </div>
+              </div>
+
+              <div id="admin-url-row" class="admin-form__field">
+                <label for="admin-url">Media URL</label>
+                <input
+                  id="admin-url"
+                  name="admin-url"
+                  type="url"
+                  placeholder="https://drive.google.com/... or https://www.youtube.com/watch?v=..."
+                />
+              </div>
+
+              <div id="admin-file-row" class="admin-form__field" hidden>
+                <label for="admin-file">Upload File</label>
+                <input
+                  id="admin-file"
+                  name="admin-file"
+                  type="file"
+                  accept="image/*,video/*,.pdf,.doc,.docx,.txt,.md,.csv,.json,.xml,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z"
+                />
+              </div>
+
+              <div class="admin-form__field">
+                <label for="admin-thumbnail-url">Thumbnail URL (optional)</label>
+                <input
+                  id="admin-thumbnail-url"
+                  name="admin-thumbnail-url"
+                  type="url"
+                  placeholder="Optional preview image for documents or file cards"
+                />
+              </div>
+
+              <div class="admin-form__field">
+                <label for="admin-description">Description</label>
+                <textarea
+                  id="admin-description"
+                  name="admin-description"
+                  placeholder="Short context for this asset"
+                ></textarea>
+              </div>
+
+              <p class="admin-note">
+                URL mode supports Google Drive images and videos, YouTube links, direct `.mp4` / `.webm` / `.ogg`
+                URLs, PDFs, docs, and other remote files. Upload mode stores files under the backend
+                `/public/media` folders.
+              </p>
+
+              <div class="admin-actions">
+                <button id="admin-submit" class="admin-button" type="submit">Post Asset</button>
+                <p id="admin-submit-status" class="admin-status" role="status" aria-live="polite">
+                  Ready to post.
+                </p>
+              </div>
+            </form>
+          </div>
+
+          <aside class="admin-panel">
+            <h3>Catalog Snapshot</h3>
+            <div class="admin-summary" aria-label="Media catalog counts">
+              <article class="admin-summary__card">
+                <span id="summary-images" class="admin-summary__value">0</span>
+                <span class="admin-summary__label">Images</span>
+              </article>
+              <article class="admin-summary__card">
+                <span id="summary-videos" class="admin-summary__value">0</span>
+                <span class="admin-summary__label">Videos</span>
+              </article>
+              <article class="admin-summary__card">
+                <span id="summary-documents" class="admin-summary__value">0</span>
+                <span class="admin-summary__label">Documents</span>
+              </article>
+              <article class="admin-summary__card">
+                <span id="summary-other" class="admin-summary__value">0</span>
+                <span class="admin-summary__label">Other Files</span>
+              </article>
+            </div>
+
+            <div>
+              <h4>Recent Media Items</h4>
+              <div id="recent-media-list" class="admin-list">
+                <p class="admin-note">Loading recent media items...</p>
+              </div>
+            </div>
+
+            <div>
+              <h4>Notes</h4>
+              <p class="admin-note">
+                News is still handled by the existing automated service. This console only manages manual media and
+                file assets.
+              </p>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </main>
+
+    <script src="js/admin-console.js"></script>
+  </body>
+</html>
