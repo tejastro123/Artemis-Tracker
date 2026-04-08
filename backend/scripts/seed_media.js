@@ -5,7 +5,7 @@ const logger = require('../src/utils/logger');
 
 async function seedMedia() {
   try {
-    await mongoose.connect(config.MONGODB.URI);
+    await mongoose.connect(config.DATABASE.MONGODB_URI);
     logger.info('Connected to MongoDB for seeding media...');
 
     // Clear existing media

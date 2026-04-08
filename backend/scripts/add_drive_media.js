@@ -13,7 +13,7 @@ async function addDriveMedia() {
   }
 
   try {
-    await mongoose.connect(config.MONGODB.URI);
+    await mongoose.connect(config.DATABASE.MONGODB_URI);
     logger.info('Connected to MongoDB for adding Drive media...');
 
     const newItem = new MediaItem({
