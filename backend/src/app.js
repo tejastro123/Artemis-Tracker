@@ -37,7 +37,7 @@ module.exports = function createApp({ services }) {
       }
     },
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Accept', 'x-admin-key'],
+    allowedHeaders: ['Content-Type', 'Accept', 'x-admin-token'],
   }));
 
   // Request logging using pino-aware morgan stream

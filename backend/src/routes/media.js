@@ -1,22 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const mediaService = require('../services/MediaService');
-const config = require('../config');
-const { AppError, ValidationError } = require('../utils/errors');
-
-function requireAdmin(req, res, next) {
-  const adminKey = req.get('x-admin-key');
-
-  if (!adminKey) {
-    return next(new ValidationError('Missing admin API key'));
-  }
-
-  if (adminKey !== config.ADMIN.API_KEY) {
-    return next(new AppError('Invalid admin API key', 401));
-  }
-
-  next();
-}
+const { ValidationError, AppError } = require('../utils/errors');
+const {
+  createAdminSession,
+  isValidAdminCredential,
+  requireAdminSession
+} = require('../utils/adminSession');
 
 module.exports = function () {
   /**
@@ -32,7 +22,43 @@ module.exports = function () {
     }
   });
 
-  router.post('/', requireAdmin, async (req, res, next) => {
+  router.post('/admin/login', async (req, res, next) => {
+    try {
+      const password = typeof req.body.password === 'string'
+        ? req.body.password.trim()
+        : '';
+
+      if (!password) {
+        throw new ValidationError('Admin password is required');
+      }
+
+      if (!isValidAdminCredential(password)) {
+        throw new AppError('Invalid admin credentials', 401);
+      }
+
+      const session = createAdminSession();
+      res.json({
+        authenticated: true,
+        token: session.token,
+        expiresAt: session.expiresAt
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get('/admin/session', requireAdminSession, async (req, res, next) => {
+    try {
+      res.json({
+        authenticated: true,
+        expiresAt: new Date(req.adminSession.exp).toISOString()
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post('/', requireAdminSession, async (req, res, next) => {
     try {
       const item = await mediaService.createMediaItem(req.body);
       res.status(201).json({

@@ -366,6 +366,29 @@
         box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
       }
 
+      .admin-panel[hidden] {
+        display: none;
+      }
+
+      .admin-panel__head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .admin-auth {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .admin-login {
+        display: grid;
+        gap: 1rem;
+      }
+
       .admin-form {
         display: grid;
         gap: 1rem;
@@ -446,9 +469,27 @@
         cursor: pointer;
       }
 
+      .admin-logout {
+        min-height: 2.8rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 0.9rem;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
       .admin-submit:hover,
       .admin-submit:focus-visible {
         background: rgba(0, 242, 255, 0.14);
+        color: var(--text-bright);
+      }
+
+      .admin-logout:hover,
+      .admin-logout:focus-visible {
+        background: rgba(255, 255, 255, 0.08);
         color: var(--text-bright);
       }
 
@@ -581,7 +622,7 @@
         <a href="#media-documents-section">Documents</a>
         <a href="#media-other-section">Other Files</a>
         <a href="#media-news-section">Latest News</a>
-        <a href="#admin-console-section">Admin</a>
+        <a href="#admin-console-section">Admin Access</a>
         <a href="#important-links-section">Important Links</a>
       </nav>
 
@@ -671,108 +712,132 @@
           </div>
         </div>
 
-        <div class="admin-panel">
-          <form id="media-admin-form" class="admin-form">
-            <div class="admin-form__field">
-              <span class="admin-form__legend">Submission Mode</span>
-              <div class="admin-form__toggles">
-                <label class="admin-form__toggle" for="admin-mode-url">
-                  <input id="admin-mode-url" type="radio" name="admin-mode" value="url" checked />
-                  <span>Use URL</span>
-                </label>
-                <label class="admin-form__toggle" for="admin-mode-upload">
-                  <input id="admin-mode-upload" type="radio" name="admin-mode" value="upload" />
-                  <span>Upload file</span>
-                </label>
-              </div>
+        <div class="admin-auth">
+            <div id="admin-login-panel" class="admin-panel">
+              <form id="media-admin-login-form" class="admin-login">
+                <div class="admin-form__field">
+                  <label for="admin-password">Admin Password</label>
+                  <input
+                    id="admin-password"
+                    name="admin-password"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="Enter the admin login credential"
+                    required
+                  />
+                </div>
+
+                <p class="media-help">
+                  Admin posting tools stay hidden until a valid admin login is verified by the backend.
+                </p>
+
+                <div class="admin-form__actions">
+                  <button type="submit" id="admin-login-submit" class="admin-submit">Sign In</button>
+                  <p id="admin-login-status" class="admin-status admin-status--info" role="status" aria-live="polite">
+                    Sign in to reveal the admin posting console.
+                  </p>
+                </div>
+              </form>
             </div>
 
-            <div class="admin-form__grid">
-              <div class="admin-form__field">
-                <label for="admin-api-key">Admin API Key</label>
-                <input
-                  id="admin-api-key"
-                  name="admin-api-key"
-                  type="password"
-                  autocomplete="current-password"
-                  placeholder="Enter your ADMIN_API_KEY"
-                  required
-                />
-              </div>
-
-              <div class="admin-form__field">
-                <label for="admin-type">Type</label>
-                <select id="admin-type" name="admin-type">
-                  <option value="image">Image</option>
-                  <option value="video">Video</option>
-                  <option value="document">Document</option>
-                  <option value="other">Other File</option>
-                </select>
+            <div id="admin-console-panel" class="admin-panel" hidden>
+              <div class="admin-panel__head">
+                <p id="admin-session-status" class="admin-status admin-status--success">
+                  Signed in as admin.
+                </p>
+                <button id="admin-logout" class="admin-logout" type="button">Log Out</button>
               </div>
 
-              <div class="admin-form__field">
-                <label for="admin-title">Title</label>
-                <input id="admin-title" name="admin-title" type="text" placeholder="Mission asset title" required />
-              </div>
+              <form id="media-admin-form" class="admin-form">
+                <div class="admin-form__field">
+                  <span class="admin-form__legend">Submission Mode</span>
+                  <div class="admin-form__toggles">
+                    <label class="admin-form__toggle" for="admin-mode-url">
+                      <input id="admin-mode-url" type="radio" name="admin-mode" value="url" checked />
+                      <span>Use URL</span>
+                    </label>
+                    <label class="admin-form__toggle" for="admin-mode-upload">
+                      <input id="admin-mode-upload" type="radio" name="admin-mode" value="upload" />
+                      <span>Upload file</span>
+                    </label>
+                  </div>
+                </div>
 
-              <div class="admin-form__field">
-                <label for="admin-category">Category</label>
-                <input id="admin-category" name="admin-category" type="text" placeholder="mission, crew, docs, archive..." />
-              </div>
+                <div class="admin-form__grid">
+                  <div class="admin-form__field">
+                    <label for="admin-type">Type</label>
+                    <select id="admin-type" name="admin-type">
+                      <option value="image">Image</option>
+                      <option value="video">Video</option>
+                      <option value="document">Document</option>
+                      <option value="other">Other File</option>
+                    </select>
+                  </div>
+
+                  <div class="admin-form__field">
+                    <label for="admin-title">Title</label>
+                    <input id="admin-title" name="admin-title" type="text" placeholder="Mission asset title" required />
+                  </div>
+
+                  <div class="admin-form__field">
+                    <label for="admin-category">Category</label>
+                    <input id="admin-category" name="admin-category" type="text" placeholder="mission, crew, docs, archive..." />
+                  </div>
+                </div>
+
+                <div id="admin-url-row" class="admin-form__field">
+                  <label for="admin-url">Media URL</label>
+                  <input
+                    id="admin-url"
+                    name="admin-url"
+                    type="url"
+                    placeholder="https://drive.google.com/... or https://www.youtube.com/watch?v=..."
+                  />
+                </div>
+
+                <div id="admin-file-row" class="admin-form__field" hidden>
+                  <label for="admin-file">Upload File</label>
+                  <input
+                    id="admin-file"
+                    name="admin-file"
+                    type="file"
+                    accept="image/*,video/*,.pdf,.doc,.docx,.txt,.md,.csv,.json,.xml,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z"
+                  />
+                </div>
+
+                <div class="admin-form__field">
+                  <label for="admin-thumbnail-url">Thumbnail URL (optional)</label>
+                  <input
+                    id="admin-thumbnail-url"
+                    name="admin-thumbnail-url"
+                    type="url"
+                    placeholder="Optional preview image for documents, files, or custom cards"
+                  />
+                </div>
+
+                <div class="admin-form__field">
+                  <label for="admin-description">Description</label>
+                  <textarea
+                    id="admin-description"
+                    name="admin-description"
+                    placeholder="Short context for this asset"
+                  ></textarea>
+                </div>
+
+                <p class="media-help">
+                  URL mode supports Google Drive image/video links, YouTube links, direct `.mp4` / `.webm` / `.ogg`
+                  URLs, PDFs, docs, and other remote files. Upload mode stores the selected file under the backend
+                  `/public/media` folder.
+                </p>
+
+                <div class="admin-form__actions">
+                  <button type="submit" id="admin-submit" class="admin-submit">Post Asset</button>
+                  <p id="admin-status" class="admin-status admin-status--info" role="status" aria-live="polite">
+                    You are signed in. Submit a URL or upload a file to post media.
+                  </p>
+                </div>
+              </form>
             </div>
-
-            <div id="admin-url-row" class="admin-form__field">
-              <label for="admin-url">Media URL</label>
-              <input
-                id="admin-url"
-                name="admin-url"
-                type="url"
-                placeholder="https://drive.google.com/... or https://www.youtube.com/watch?v=..."
-              />
-            </div>
-
-            <div id="admin-file-row" class="admin-form__field" hidden>
-              <label for="admin-file">Upload File</label>
-              <input
-                id="admin-file"
-                name="admin-file"
-                type="file"
-                accept="image/*,video/*,.pdf,.doc,.docx,.txt,.md,.csv,.json,.xml,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z"
-              />
-            </div>
-
-            <div class="admin-form__field">
-              <label for="admin-thumbnail-url">Thumbnail URL (optional)</label>
-              <input
-                id="admin-thumbnail-url"
-                name="admin-thumbnail-url"
-                type="url"
-                placeholder="Optional preview image for documents, files, or custom cards"
-              />
-            </div>
-
-            <div class="admin-form__field">
-              <label for="admin-description">Description</label>
-              <textarea
-                id="admin-description"
-                name="admin-description"
-                placeholder="Short context for this asset"
-              ></textarea>
-            </div>
-
-            <p class="media-help">
-              URL mode supports Google Drive image/video links, YouTube links, direct `.mp4` / `.webm` / `.ogg`
-              URLs, PDFs, docs, and other remote files. Upload mode stores the selected file under the backend
-              `/public/media` folder.
-            </p>
-
-            <div class="admin-form__actions">
-              <button type="submit" id="admin-submit" class="admin-submit">Post Asset</button>
-              <p id="admin-status" class="admin-status admin-status--info" role="status" aria-live="polite">
-                Enter your admin API key and submit a URL or file upload.
-              </p>
-            </div>
-          </form>
         </div>
       </section>
 

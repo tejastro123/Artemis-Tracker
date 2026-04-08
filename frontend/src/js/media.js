@@ -1,6 +1,6 @@
 /**
  * Artemis II Media Center
- * Images, videos, documents, latest news, and admin-managed mission assets.
+ * Images, videos, documents, latest news, and login-gated admin media posting.
  */
 
 (function () {
@@ -16,7 +16,9 @@
   var MEDIA_API_URL = API_BASE + '/media';
   var NEWS_API_URL = API_BASE + '/news?limit=6';
   var TELEMETRY_API_URL = API_BASE + '/telemetry';
-  var ADMIN_KEY_STORAGE_KEY = 'artemisTracker.adminKey';
+  var ADMIN_LOGIN_URL = MEDIA_API_URL + '/admin/login';
+  var ADMIN_SESSION_URL = MEDIA_API_URL + '/admin/session';
+  var ADMIN_SESSION_TOKEN_STORAGE_KEY = 'artemisTracker.adminSessionToken';
   var uploadLimitBytes = 25 * 1024 * 1024;
 
   var dom = {};
@@ -38,8 +40,15 @@
       countOther: document.getElementById('media-count-other'),
       countNews: document.getElementById('media-count-news'),
       countLinks: document.getElementById('media-count-links'),
+      adminLoginPanel: document.getElementById('admin-login-panel'),
+      adminConsolePanel: document.getElementById('admin-console-panel'),
+      adminLoginForm: document.getElementById('media-admin-login-form'),
+      adminPassword: document.getElementById('admin-password'),
+      adminLoginSubmit: document.getElementById('admin-login-submit'),
+      adminLoginStatus: document.getElementById('admin-login-status'),
+      adminSessionStatus: document.getElementById('admin-session-status'),
+      adminLogout: document.getElementById('admin-logout'),
       adminForm: document.getElementById('media-admin-form'),
-      adminKey: document.getElementById('admin-api-key'),
       adminType: document.getElementById('admin-type'),
       adminTitle: document.getElementById('admin-title'),
       adminCategory: document.getElementById('admin-category'),
@@ -60,6 +69,7 @@
     cacheDom();
     setupSkipNav();
     setupNavToggle();
+    setupAdminAccess();
     setupAdminConsole();
     fetchTelemetryStatus();
     fetchMediaHub();
@@ -573,17 +583,26 @@
     return card;
   }
 
+  function setupAdminAccess() {
+    if (!dom.adminLoginForm) return;
+
+    dom.adminLoginForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      submitAdminLogin();
+    });
+
+    if (dom.adminLogout) {
+      dom.adminLogout.addEventListener('click', function () {
+        clearStoredAdminToken();
+        renderAdminSignedOut('Signed out. Sign in again to access the admin console.', 'info');
+      });
+    }
+
+    restoreAdminSession();
+  }
+
   function setupAdminConsole() {
     if (!dom.adminForm) return;
-
-    try {
-      var storedAdminKey = window.localStorage.getItem(ADMIN_KEY_STORAGE_KEY);
-      if (storedAdminKey && dom.adminKey) {
-        dom.adminKey.value = storedAdminKey;
-      }
-    } catch (err) {
-      // Ignore storage failures and continue with in-memory entry only.
-    }
 
     if (dom.adminModeUrl) {
       dom.adminModeUrl.addEventListener('change', toggleAdminMode);
@@ -603,6 +622,129 @@
     });
 
     toggleAdminMode();
+  }
+
+  function restoreAdminSession() {
+    var token = getStoredAdminToken();
+
+    if (!token) {
+      renderAdminSignedOut('Sign in to reveal the admin posting console.', 'info');
+      return;
+    }
+
+    setAdminLoginBusy(true);
+    setAdminLoginStatus('Checking existing admin session...', 'info');
+
+    fetch(ADMIN_SESSION_URL, {
+      method: 'GET',
+      headers: {
+        'x-admin-token': token
+      }
+    })
+      .then(function (response) {
+        return parseJsonResponse(response);
+      })
+      .then(function (data) {
+        renderAdminSignedIn(data.expiresAt);
+      })
+      .catch(function () {
+        clearStoredAdminToken();
+        renderAdminSignedOut('Admin session expired. Sign in again.', 'error');
+      })
+      .finally(function () {
+        setAdminLoginBusy(false);
+      });
+  }
+
+  function submitAdminLogin() {
+    var password = dom.adminPassword ? dom.adminPassword.value.trim() : '';
+
+    if (!password) {
+      setAdminLoginStatus('Enter the admin password.', 'error');
+      return;
+    }
+
+    setAdminLoginBusy(true);
+    setAdminLoginStatus('Signing in...', 'info');
+
+    fetch(ADMIN_LOGIN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password: password })
+    })
+      .then(function (response) {
+        return parseJsonResponse(response);
+      })
+      .then(function (data) {
+        storeAdminToken(data.token);
+        if (dom.adminPassword) {
+          dom.adminPassword.value = '';
+        }
+        renderAdminSignedIn(data.expiresAt);
+      })
+      .catch(function (err) {
+        renderAdminSignedOut(err.message || 'Unable to sign in.', 'error');
+      })
+      .finally(function () {
+        setAdminLoginBusy(false);
+      });
+  }
+
+  function renderAdminSignedIn(expiresAt) {
+    if (dom.adminLoginPanel) dom.adminLoginPanel.hidden = true;
+    if (dom.adminConsolePanel) dom.adminConsolePanel.hidden = false;
+
+    setAdminLoginStatus('Admin login active.', 'success');
+    setAdminStatus('You are signed in. Submit a URL or upload a file to post media.', 'success');
+
+    if (dom.adminSessionStatus) {
+      dom.adminSessionStatus.textContent = 'Signed in as admin until ' + formatAdminExpiry(expiresAt) + '.';
+      dom.adminSessionStatus.className = 'admin-status admin-status--success';
+    }
+  }
+
+  function renderAdminSignedOut(message, tone) {
+    if (dom.adminLoginPanel) dom.adminLoginPanel.hidden = false;
+    if (dom.adminConsolePanel) dom.adminConsolePanel.hidden = true;
+    setAdminLoginStatus(message || 'Sign in to reveal the admin posting console.', tone || 'info');
+  }
+
+  function setAdminLoginStatus(message, tone) {
+    if (!dom.adminLoginStatus) return;
+    dom.adminLoginStatus.textContent = message;
+    dom.adminLoginStatus.className = 'admin-status' + (tone ? ' admin-status--' + tone : '');
+  }
+
+  function setAdminLoginBusy(isBusy) {
+    if (dom.adminLoginSubmit) dom.adminLoginSubmit.disabled = isBusy;
+    if (dom.adminPassword) dom.adminPassword.disabled = isBusy;
+    if (dom.adminLoginSubmit) dom.adminLoginSubmit.textContent = isBusy ? 'Signing In...' : 'Sign In';
+  }
+
+  function getStoredAdminToken() {
+    try {
+      return window.sessionStorage.getItem(ADMIN_SESSION_TOKEN_STORAGE_KEY) || '';
+    } catch (err) {
+      return '';
+    }
+  }
+
+  function storeAdminToken(token) {
+    try {
+      window.sessionStorage.setItem(ADMIN_SESSION_TOKEN_STORAGE_KEY, token);
+    } catch (err) {
+      // Ignore storage failures and keep the current page state.
+    }
+  }
+
+  function clearStoredAdminToken() {
+    try {
+      window.sessionStorage.removeItem(ADMIN_SESSION_TOKEN_STORAGE_KEY);
+    } catch (err) {
+      // Ignore storage failures.
+    }
   }
 
   function getAdminMode() {
@@ -663,9 +805,9 @@
   }
 
   function submitAdminForm() {
-    var adminKey = dom.adminKey ? dom.adminKey.value.trim() : '';
-    if (!adminKey) {
-      setAdminStatus('Enter the admin API key before submitting.', 'error');
+    var adminToken = getStoredAdminToken();
+    if (!adminToken) {
+      renderAdminSignedOut('Your admin session has ended. Sign in again.', 'error');
       return;
     }
 
@@ -677,30 +819,17 @@
 
     buildAdminPayload(mode)
       .then(function (payload) {
-        try {
-          window.localStorage.setItem(ADMIN_KEY_STORAGE_KEY, adminKey);
-        } catch (err) {
-          // Ignore storage failures and continue with the current submission.
-        }
-
         return fetch(MEDIA_API_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-admin-key': adminKey
+            'x-admin-token': adminToken
           },
           body: JSON.stringify(payload)
         });
       })
       .then(function (response) {
-        return response.json().catch(function () {
-          return {};
-        }).then(function (data) {
-          if (!response.ok) {
-            throw new Error(data.error || 'Unable to create media item');
-          }
-          return data;
-        });
+        return parseJsonResponse(response);
       })
       .then(function () {
         clearAdminFields();
@@ -708,6 +837,12 @@
         fetchMediaHub();
       })
       .catch(function (err) {
+        if (err && err.status === 401) {
+          clearStoredAdminToken();
+          renderAdminSignedOut('Admin session expired. Sign in again to continue.', 'error');
+          return;
+        }
+
         setAdminStatus(err.message || 'Unable to submit media item.', 'error');
       })
       .finally(function () {
@@ -773,6 +908,19 @@
     });
   }
 
+  function parseJsonResponse(response) {
+    return response.json().catch(function () {
+      return {};
+    }).then(function (data) {
+      if (!response.ok) {
+        var err = new Error(data.error || 'Request failed');
+        err.status = response.status;
+        throw err;
+      }
+      return data;
+    });
+  }
+
   function clearAdminFields() {
     if (dom.adminTitle) dom.adminTitle.value = '';
     if (dom.adminCategory) dom.adminCategory.value = '';
@@ -781,6 +929,21 @@
     if (dom.adminDescription) dom.adminDescription.value = '';
     if (dom.adminFile) dom.adminFile.value = '';
     if (dom.adminType) dom.adminType.value = 'image';
+  }
+
+  function formatAdminExpiry(isoDate) {
+    if (!isoDate) return 'later';
+
+    var date = new Date(isoDate);
+    if (isNaN(date.getTime())) return 'later';
+
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
   }
 
   function formatFileSize(bytes) {
