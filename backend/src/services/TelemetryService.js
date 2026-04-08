@@ -18,7 +18,13 @@ class TelemetryService {
     // 1. Try Redis cache first (< 1ms)
     try {
       const cached = await this.cache.get(this.CACHE_KEY);
-      if (cached) return { ...cached, _source: 'cache' };
+      if (cached) {
+        return {
+          ...cached,
+          _cacheSource: 'cache',
+          _source: cached._source || 'cache'
+        };
+      }
     } catch (err) {
       logger.warn({ err }, 'Cache get failed, falling through to fetch');
     }
