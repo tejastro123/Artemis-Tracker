@@ -15,6 +15,7 @@ class NewsService {
     this.newsQueries = newsQueries;
     this.CACHE_KEY = 'news:current';
     this.CACHE_TTL = 300; // 5 minutes
+    this.REQUEST_TIMEOUT_MS = 8000;
   }
 
   async getLatest(limit = 20) {
@@ -25,12 +26,18 @@ class NewsService {
       logger.warn({ err }, 'News cache read failed');
     }
 
-    return await this._fetchAndCache(limit);
+    const freshPromise = this._fetchAndCache(limit).catch(err => {
+      logger.warn({ err }, 'Fresh news fetch failed, falling back to stored items');
+      return this._loadFromDb(limit);
+    });
+
+    const fallbackPromise = this._loadFromDbAfterDelay(limit, this.REQUEST_TIMEOUT_MS);
+    return await Promise.race([freshPromise, fallbackPromise]);
   }
 
   async _fetchAndCache(limit) {
     const [milestonesRes, ...rssResults] = await Promise.allSettled([
-      fetch(`https://artemis.cdnspace.ca/api/timeline`).then(r => r.json()),
+      this._fetchJsonWithTimeout('https://artemis.cdnspace.ca/api/timeline', 6000),
       ...RSS_FEEDS.map(feed => rss.fetch(feed.url, feed.source))
     ]);
 
@@ -80,6 +87,53 @@ class NewsService {
 
     await this.cache.set(this.CACHE_KEY, payload, this.CACHE_TTL);
     return payload;
+  }
+
+  async _loadFromDbAfterDelay(limit, delayMs) {
+    await new Promise(resolve => setTimeout(resolve, delayMs));
+    return this._loadFromDb(limit);
+  }
+
+  async _loadFromDb(limit) {
+    try {
+      const stored = await this.newsQueries.getLatestNews(limit);
+      const items = stored.map(item => ({
+        title: item.title,
+        summary: item.summary,
+        url: item.url,
+        source: item.source,
+        date: item.publishedAt || item.fetchedAt || new Date().toISOString(),
+        category: item.category
+      }));
+
+      return {
+        items,
+        fetchedAt: new Date().toISOString(),
+        stale: true
+      };
+    } catch (err) {
+      logger.warn({ err }, 'Stored news fallback failed');
+      return {
+        items: [],
+        fetchedAt: new Date().toISOString(),
+        stale: true
+      };
+    }
+  }
+
+  async _fetchJsonWithTimeout(url, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const resp = await fetch(url, { signal: controller.signal });
+      if (!resp.ok) {
+        throw new Error(`Status code ${resp.status}`);
+      }
+      return await resp.json();
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   _isArtemisRelated(item) {

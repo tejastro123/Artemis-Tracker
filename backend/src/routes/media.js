@@ -5,11 +5,11 @@ const mediaService = require('../services/MediaService');
 module.exports = function () {
   /**
    * @route GET /api/v1/media
-   * @desc Get all gallery items (Local & Google Drive)
+   * @desc Get the full media hub payload: images, videos, and important links
    */
   router.get('/', async (req, res, next) => {
     try {
-      const media = await mediaService.getAllMedia();
+      const media = await mediaService.getMediaHubData();
       res.json(media);
     } catch (err) {
       next(err);

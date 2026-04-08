@@ -12,8 +12,14 @@ class RSSFetcher {
   }
 
   async fetch(url, sourceName) {
+    let timer = null;
+
     try {
+      const controller = new AbortController();
+      timer = setTimeout(function () { controller.abort(); }, 6000);
+
       const resp = await fetch(url, {
+        signal: controller.signal,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
           'Accept': 'application/rss+xml, application/xml, text/xml, */*',
@@ -22,6 +28,7 @@ class RSSFetcher {
           'Pragma': 'no-cache'
         }
       });
+      clearTimeout(timer);
 
       if (!resp.ok) {
         throw new Error(`Status code ${resp.status}`);
@@ -45,6 +52,8 @@ class RSSFetcher {
         err: err.message || err 
       }, 'RSS fetch failed');
       return [];
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   }
 }

@@ -1,195 +1,380 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Gallery — Artemis II Mission Tracker</title>
-    <meta name="description" content="Official images and videos from NASA's Artemis II mission. Tracking humanity's return to the Moon.">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media Center - Artemis II Mission Tracker</title>
+    <meta
+      name="description"
+      content="Artemis II media center with mission images, videos, latest news, and important tracking links."
+    />
+    <meta name="theme-color" content="#0a0e17" />
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+
     <style>
-        .gallery-header {
-            padding: 120px 0 60px;
-            background: linear-gradient(to bottom, rgba(10, 14, 23, 0.8), #0a0e17);
-            text-align: center;
+      .media-page {
+        padding: 6rem 0 4rem;
+      }
+
+      .media-hero {
+        display: grid;
+        gap: 1.75rem;
+        align-items: end;
+        margin-bottom: 2.5rem;
+      }
+
+      .media-hero__eyebrow {
+        font-family: var(--font-mono);
+        color: var(--accent);
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 0.85rem;
+      }
+
+      .media-hero__title {
+        margin: 0 0 0.85rem;
+        font-size: clamp(2.2rem, 5vw, 4.4rem);
+        line-height: 0.95;
+      }
+
+      .media-hero__lead {
+        max-width: 48rem;
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: 1.75;
+        margin: 0;
+      }
+
+      .media-hero__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        margin-top: 1.25rem;
+      }
+
+      .media-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.7rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        font-size: 0.88rem;
+      }
+
+      .media-status::before {
+        content: "";
+        width: 0.6rem;
+        height: 0.6rem;
+        border-radius: 50%;
+        background: #ffcc00;
+        box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+      }
+
+      .media-status--live::before {
+        background: #22c55e;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+      }
+
+      .media-status--warning::before {
+        background: #f59e0b;
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+      }
+
+      .media-generated-at {
+        color: var(--text-dim);
+        font-size: 0.88rem;
+        align-self: center;
+      }
+
+      .media-jump {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        margin-bottom: 2.25rem;
+      }
+
+      .media-jump a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.8rem 1.05rem;
+        min-width: 9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .media-jump a:hover,
+      .media-jump a:focus-visible {
+        background: rgba(0, 242, 255, 0.08);
+        border-color: rgba(0, 242, 255, 0.3);
+        color: var(--accent);
+      }
+
+      .media-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 2.75rem;
+      }
+
+      .media-stat {
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        padding: 1.15rem 1rem;
+      }
+
+      .media-stat__value {
+        display: block;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-bright);
+        line-height: 1;
+        margin-bottom: 0.4rem;
+      }
+
+      .media-stat__label {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .media-section {
+        margin-bottom: 3.5rem;
+      }
+
+      .media-section__head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.35rem;
+      }
+
+      .media-section__head h2 {
+        margin-bottom: 0.4rem;
+      }
+
+      .media-section__head p {
+        margin: 0;
+        max-width: 42rem;
+        color: var(--text-muted);
+      }
+
+      .media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .media-card,
+      .link-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.1rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
+      }
+
+      .media-card__badge {
+        position: absolute;
+        top: 0.9rem;
+        right: 0.9rem;
+        z-index: 2;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(10, 14, 23, 0.82);
+        color: var(--text-bright);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .media-card__media {
+        background: rgba(255, 255, 255, 0.03);
+        aspect-ratio: 16 / 9;
+      }
+
+      .media-card__media iframe,
+      .media-card__media video,
+      .media-card__image {
+        width: 100%;
+        height: 100%;
+        display: block;
+        border: 0;
+        object-fit: cover;
+      }
+
+      .media-card__body,
+      .link-card {
+        padding: 1.1rem;
+      }
+
+      .media-card__category,
+      .link-card__group {
+        margin: 0 0 0.5rem;
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .media-card__title,
+      .link-card__title {
+        margin: 0 0 0.65rem;
+        color: var(--text-bright);
+        font-size: 1.05rem;
+        line-height: 1.3;
+      }
+
+      .media-card__description,
+      .link-card__description {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        line-height: 1.6;
+      }
+
+      .media-card__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .media-card__timestamp {
+        color: var(--text-dim);
+        font-size: 0.82rem;
+      }
+
+      .media-card__action,
+      .link-card__action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.5rem;
+        padding: 0.65rem 0.9rem;
+        border-radius: 0.8rem;
+        background: rgba(0, 242, 255, 0.08);
+        color: var(--accent);
+        border: 1px solid rgba(0, 242, 255, 0.18);
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .media-card__action:hover,
+      .media-card__action:focus-visible,
+      .link-card__action:hover,
+      .link-card__action:focus-visible {
+        background: rgba(0, 242, 255, 0.15);
+        color: var(--text-bright);
+      }
+
+      .link-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+      }
+
+      .link-card__action {
+        margin-top: 1rem;
+        width: fit-content;
+      }
+
+      .media-empty {
+        margin: 0;
+        padding: 1rem 1.1rem;
+        border-radius: 1rem;
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--text-muted);
+      }
+
+      .media-news-list {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .site-footer .container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      @media (max-width: 900px) {
+        .media-stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
-        
-        .gallery-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .gallery-filters {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-        
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 10px 24px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .filter-btn:hover, .filter-btn.active {
-            background: white;
-            color: black;
-            border-color: white;
-            transform: translateY(-2px);
-        }
-        
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-            margin-bottom: 80px;
-        }
-        
-        .media-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        
-        .media-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-        
-        .media-preview {
-            aspect-ratio: 16/9;
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: #1a1f2e;
+      }
+
+      @media (max-width: 640px) {
+        .media-page {
+          padding-top: 5rem;
         }
 
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
-            height: 0;
-            overflow: hidden;
+        .media-stats {
+          grid-template-columns: 1fr;
         }
 
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .media-info {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            height: 160px;
-        }
-        
-        .media-category {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            color: #6366f1;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 8px;
-        }
-        
-        .media-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: white;
-            line-height: 1.3;
-        }
-        
-        .media-desc {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.6);
-            line-height: 1.5;
-            flex-grow: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
+        .media-card__footer {
+          align-items: start;
+          flex-direction: column;
         }
 
-        .media-actions {
-            margin-top: 15px;
-            display: flex;
-            justify-content: flex-end;
+        .media-jump a {
+          min-width: 0;
+          flex: 1 1 45%;
         }
-
-        .download-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .download-btn:hover {
-            background: white;
-            color: black;
-            border-color: white;
-        }
-        
-        .type-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            z-index: 10;
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="star-field"></div>
+    <div class="scanline"></div>
+
+    <a id="skip-nav" class="skip-nav" href="#main-content">Skip to main content</a>
+
     <header class="site-header">
       <div class="container site-header__inner">
-        <a aria-label="Artemis II Mission Tracker — Home" class="site-title" href="index.html">
+        <a aria-label="Artemis II Mission Tracker - Home" class="site-title" href="index.html">
           <span>Artemis II</span> Tracker
         </a>
 
         <div id="data-status" class="data-status data-status--prelaunch" role="status" aria-live="polite">
-          Pre-launch &mdash; data available after liftoff
+          Pre-launch - data available after liftoff
         </div>
 
-        <button class="nav-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Open menu">
+        <button
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="main-nav"
+          aria-label="Open menu"
+        >
           <svg class="icon-menu" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 6h18M3 12h18M3 18h18" />
           </svg>
@@ -204,37 +389,115 @@
             <li><a href="index.html#timeline">Timeline</a></li>
             <li><a href="crew.html">Crew</a></li>
             <li><a href="spacecraft.html">Vehicle</a></li>
-            <li><a aria-current="page" href="media.html">Gallery</a></li>
+            <li><a aria-current="page" href="media.html">Media</a></li>
             <li><a href="about.html">About</a></li>
+            <li><a href="sources.html">Sources</a></li>
           </ul>
         </nav>
       </div>
     </header>
 
-    <main class="container">
-        <section class="gallery-header">
-            <h1 class="gallery-title">Mission Media Archive</h1>
-            <p class="section-intro">Visual history of the Artemis II mission. Experience the training, the vehicle, and the journey to deep space.</p>
-            
-            <div class="gallery-filters">
-                <button class="filter-btn active" data-filter="all">All Media</button>
-                <button class="filter-btn" data-filter="image">Images</button>
-                <button class="filter-btn" data-filter="video">Videos</button>
-            </div>
-        </section>
+    <main id="main-content" class="container media-page">
+      <section class="media-hero" aria-labelledby="media-heading">
+        <div>
+          <p class="media-hero__eyebrow">Media Center</p>
+          <h1 id="media-heading" class="media-hero__title">Images, video, news, and mission resources in one place.</h1>
+          <p class="media-hero__lead">
+            Follow the mission visually, catch the latest Artemis coverage, and keep the most important
+            project and NASA links within easy reach.
+          </p>
 
-        <section id="media-gallery" class="gallery-grid">
-            <!-- Media items will be injected here -->
-            <div class="loader">Accessing Mission Database...</div>
-        </section>
+          <div class="media-hero__meta">
+            <p id="media-feed-status" class="media-status media-status--warning">
+              Connecting to the media catalog...
+            </p>
+            <p id="media-generated-at" class="media-generated-at">Waiting for update...</p>
+          </div>
+        </div>
+      </section>
+
+      <nav class="media-jump" aria-label="Media center sections">
+        <a href="#media-images-section">Images</a>
+        <a href="#media-videos-section">Videos</a>
+        <a href="#media-news-section">Latest News</a>
+        <a href="#important-links-section">Important Links</a>
+      </nav>
+
+      <section class="media-stats" aria-label="Media center summary">
+        <article class="media-stat">
+          <span id="media-count-images" class="media-stat__value">0</span>
+          <span class="media-stat__label">Images</span>
+        </article>
+        <article class="media-stat">
+          <span id="media-count-videos" class="media-stat__value">0</span>
+          <span class="media-stat__label">Videos</span>
+        </article>
+        <article class="media-stat">
+          <span id="media-count-news" class="media-stat__value">0</span>
+          <span class="media-stat__label">Latest News</span>
+        </article>
+        <article class="media-stat">
+          <span id="media-count-links" class="media-stat__value">0</span>
+          <span class="media-stat__label">Important Links</span>
+        </article>
+      </section>
+
+      <section id="media-images-section" class="media-section" aria-labelledby="media-images-heading">
+        <div class="media-section__head">
+          <div>
+            <h2 id="media-images-heading">Images</h2>
+            <p>Mission artwork, tracker visuals, and archived imagery ready to open in full resolution.</p>
+          </div>
+        </div>
+        <div id="media-images" class="media-grid">
+          <p class="media-empty">Loading image archive...</p>
+        </div>
+      </section>
+
+      <section id="media-videos-section" class="media-section" aria-labelledby="media-videos-heading">
+        <div class="media-section__head">
+          <div>
+            <h2 id="media-videos-heading">Videos</h2>
+            <p>Mission coverage and embedded video assets from the media catalog.</p>
+          </div>
+        </div>
+        <div id="media-videos" class="media-grid">
+          <p class="media-empty">Loading video archive...</p>
+        </div>
+      </section>
+
+      <section id="media-news-section" class="media-section" aria-labelledby="media-news-heading">
+        <div class="media-section__head">
+          <div>
+            <h2 id="media-news-heading">Latest News</h2>
+            <p>Fresh Artemis-related updates pulled from the existing mission news service.</p>
+          </div>
+        </div>
+        <div id="media-news-list" class="news-list media-news-list" aria-live="polite">
+          <p class="media-empty">Loading latest mission coverage...</p>
+        </div>
+      </section>
+
+      <section id="important-links-section" class="media-section" aria-labelledby="important-links-heading">
+        <div class="media-section__head">
+          <div>
+            <h2 id="important-links-heading">Important Links</h2>
+            <p>Quick-access references for official NASA resources, community telemetry feeds, and project pages.</p>
+          </div>
+        </div>
+        <div id="important-links" class="link-grid">
+          <p class="media-empty">Loading mission links...</p>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
-        <div class="container footer-content">
-            <p>&copy; 2026 Artemis II Mission Tracker. All data provided for simulation purposes.</p>
-        </div>
+      <div class="container">
+        <p>Artemis II Media Center for the Artemis Tracker project.</p>
+        <p>External media and links remain the property of their original owners. Not affiliated with NASA.</p>
+      </div>
     </footer>
 
     <script src="js/media.js"></script>
-</body>
+  </body>
 </html>
