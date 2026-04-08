@@ -8,7 +8,7 @@ const mediaItemSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['image', 'video'],
+    enum: ['image', 'video', 'document', 'other'],
     required: true
   },
   url: {
@@ -17,6 +17,20 @@ const mediaItemSchema = new mongoose.Schema({
   },
   thumbnailUrl: {
     type: String
+  },
+  sourceType: {
+    type: String,
+    enum: ['url', 'upload'],
+    default: 'url'
+  },
+  mimeType: {
+    type: String
+  },
+  originalName: {
+    type: String
+  },
+  sizeBytes: {
+    type: Number
   },
   category: {
     type: String,

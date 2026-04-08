@@ -1,6 +1,6 @@
 /**
  * Artemis II Media Center
- * Images, videos, latest news, and important mission links.
+ * Images, videos, documents, latest news, and admin-managed mission assets.
  */
 
 (function () {
@@ -16,6 +16,8 @@
   var MEDIA_API_URL = API_BASE + '/media';
   var NEWS_API_URL = API_BASE + '/news?limit=6';
   var TELEMETRY_API_URL = API_BASE + '/telemetry';
+  var ADMIN_KEY_STORAGE_KEY = 'artemisTracker.adminKey';
+  var uploadLimitBytes = 25 * 1024 * 1024;
 
   var dom = {};
 
@@ -26,12 +28,31 @@
       mediaGeneratedAt: document.getElementById('media-generated-at'),
       images: document.getElementById('media-images'),
       videos: document.getElementById('media-videos'),
+      documents: document.getElementById('media-documents'),
+      other: document.getElementById('media-other'),
       news: document.getElementById('media-news-list'),
       links: document.getElementById('important-links'),
       countImages: document.getElementById('media-count-images'),
       countVideos: document.getElementById('media-count-videos'),
+      countDocuments: document.getElementById('media-count-documents'),
+      countOther: document.getElementById('media-count-other'),
       countNews: document.getElementById('media-count-news'),
-      countLinks: document.getElementById('media-count-links')
+      countLinks: document.getElementById('media-count-links'),
+      adminForm: document.getElementById('media-admin-form'),
+      adminKey: document.getElementById('admin-api-key'),
+      adminType: document.getElementById('admin-type'),
+      adminTitle: document.getElementById('admin-title'),
+      adminCategory: document.getElementById('admin-category'),
+      adminUrl: document.getElementById('admin-url'),
+      adminFile: document.getElementById('admin-file'),
+      adminThumbnailUrl: document.getElementById('admin-thumbnail-url'),
+      adminDescription: document.getElementById('admin-description'),
+      adminModeUrl: document.getElementById('admin-mode-url'),
+      adminModeUpload: document.getElementById('admin-mode-upload'),
+      adminUrlRow: document.getElementById('admin-url-row'),
+      adminFileRow: document.getElementById('admin-file-row'),
+      adminSubmit: document.getElementById('admin-submit'),
+      adminStatus: document.getElementById('admin-status')
     };
   }
 
@@ -39,6 +60,7 @@
     cacheDom();
     setupSkipNav();
     setupNavToggle();
+    setupAdminConsole();
     fetchTelemetryStatus();
     fetchMediaHub();
     fetchLatestNews();
@@ -97,6 +119,8 @@
   function fetchMediaHub() {
     if (dom.images) dom.images.innerHTML = '<p class="media-empty">Loading image archive...</p>';
     if (dom.videos) dom.videos.innerHTML = '<p class="media-empty">Loading video archive...</p>';
+    if (dom.documents) dom.documents.innerHTML = '<p class="media-empty">Loading document archive...</p>';
+    if (dom.other) dom.other.innerHTML = '<p class="media-empty">Loading additional files...</p>';
     if (dom.links) dom.links.innerHTML = '<p class="media-empty">Loading mission links...</p>';
 
     fetchJson(MEDIA_API_URL, 12000)
@@ -111,22 +135,32 @@
 
   function renderMediaHub(payload) {
     var items = Array.isArray(payload) ? payload : (payload.items || []);
-    var images = Array.isArray(payload.images) ? payload.images : items.filter(function (item) { return item.type === 'image'; });
-    var videos = Array.isArray(payload.videos) ? payload.videos : items.filter(function (item) { return item.type === 'video'; });
+    var images = Array.isArray(payload.images) ? payload.images : filterMedia(items, 'image');
+    var videos = Array.isArray(payload.videos) ? payload.videos : filterMedia(items, 'video');
+    var documents = Array.isArray(payload.documents) ? payload.documents : filterMedia(items, 'document');
+    var others = Array.isArray(payload.others) ? payload.others : filterMedia(items, 'other');
     var links = Array.isArray(payload.importantLinks) ? payload.importantLinks : [];
+
+    if (typeof payload.maxUploadSizeBytes === 'number' && payload.maxUploadSizeBytes > 0) {
+      uploadLimitBytes = payload.maxUploadSizeBytes;
+    }
 
     renderMediaCards(dom.images, images, 'image');
     renderMediaCards(dom.videos, videos, 'video');
+    renderMediaCards(dom.documents, documents, 'document');
+    renderMediaCards(dom.other, others, 'other');
     renderImportantLinks(links);
 
     setCount(dom.countImages, images.length);
     setCount(dom.countVideos, videos.length);
+    setCount(dom.countDocuments, documents.length);
+    setCount(dom.countOther, others.length);
     setCount(dom.countLinks, links.length);
 
     if (dom.mediaFeedStatus) {
       dom.mediaFeedStatus.textContent = payload.usingFallbackMedia
         ? 'Using bundled fallback media while the database is empty or temporarily unavailable.'
-        : 'Connected to the live mission media catalog.';
+        : 'Connected to the live admin-managed media catalog.';
       dom.mediaFeedStatus.className = payload.usingFallbackMedia
         ? 'media-status media-status--warning'
         : 'media-status media-status--live';
@@ -137,10 +171,18 @@
     }
   }
 
+  function filterMedia(items, type) {
+    return items.filter(function (item) {
+      return item.type === type;
+    });
+  }
+
   function renderMediaError() {
     var errorText = '<p class="media-empty">Unable to load this section right now.</p>';
     if (dom.images) dom.images.innerHTML = errorText;
     if (dom.videos) dom.videos.innerHTML = errorText;
+    if (dom.documents) dom.documents.innerHTML = errorText;
+    if (dom.other) dom.other.innerHTML = errorText;
     if (dom.links) dom.links.innerHTML = errorText;
     if (dom.mediaFeedStatus) {
       dom.mediaFeedStatus.textContent = 'Media hub unavailable right now.';
@@ -152,7 +194,7 @@
     if (!container) return;
 
     if (!items || !items.length) {
-      container.innerHTML = '<p class="media-empty">No ' + (type === 'image' ? 'images' : 'videos') + ' available yet.</p>';
+      container.innerHTML = '<p class="media-empty">' + getEmptyStateMessage(type) + '</p>';
       return;
     }
 
@@ -163,18 +205,25 @@
     }
   }
 
+  function getEmptyStateMessage(type) {
+    if (type === 'image') return 'No images available yet.';
+    if (type === 'video') return 'No videos available yet.';
+    if (type === 'document') return 'No documents available yet.';
+    return 'No additional files available yet.';
+  }
+
   function createMediaCard(item, type) {
     var card = document.createElement('article');
     card.className = 'media-card';
 
     var badge = document.createElement('span');
     badge.className = 'media-card__badge';
-    badge.textContent = type === 'image' ? 'Image' : 'Video';
+    badge.textContent = getBadgeLabel(type);
     card.appendChild(badge);
 
     var mediaFrame = document.createElement('div');
     mediaFrame.className = 'media-card__media';
-    mediaFrame.appendChild(type === 'image' ? createImageElement(item) : createVideoElement(item));
+    mediaFrame.appendChild(createMediaElement(item, type));
     card.appendChild(mediaFrame);
 
     var body = document.createElement('div');
@@ -187,7 +236,7 @@
 
     var title = document.createElement('h3');
     title.className = 'media-card__title';
-    title.textContent = item.title || (type === 'image' ? 'Mission image' : 'Mission video');
+    title.textContent = item.title || getDefaultTitle(type);
     body.appendChild(title);
 
     if (item.description) {
@@ -210,7 +259,7 @@
     action.href = resolveMediaHref(item.url);
     action.target = '_blank';
     action.rel = 'noopener noreferrer';
-    action.textContent = type === 'image' ? 'Open image' : 'Watch video';
+    action.textContent = getActionLabel(type);
     footer.appendChild(action);
 
     body.appendChild(footer);
@@ -219,12 +268,45 @@
     return card;
   }
 
+  function getBadgeLabel(type) {
+    if (type === 'image') return 'Image';
+    if (type === 'video') return 'Video';
+    if (type === 'document') return 'Document';
+    return 'File';
+  }
+
+  function getDefaultTitle(type) {
+    if (type === 'image') return 'Mission image';
+    if (type === 'video') return 'Mission video';
+    if (type === 'document') return 'Mission document';
+    return 'Mission file';
+  }
+
+  function getActionLabel(type) {
+    if (type === 'image') return 'Open image';
+    if (type === 'video') return 'Watch video';
+    if (type === 'document') return 'Open document';
+    return 'Open file';
+  }
+
+  function createMediaElement(item, type) {
+    if (type === 'image') {
+      return createImageElement(item);
+    }
+
+    if (type === 'video') {
+      return createVideoElement(item);
+    }
+
+    return createFileElement(item, type);
+  }
+
   function createImageElement(item) {
     var img = document.createElement('img');
     img.className = 'media-card__image';
     img.loading = 'lazy';
     img.alt = item.title || 'Artemis II mission image';
-    img.src = resolvePreviewImage(item);
+    img.src = resolvePreviewImage(item) || 'img/artemis-ii-launch.jpg';
     return img;
   }
 
@@ -251,7 +333,7 @@
     }
 
     var href = resolveMediaHref(item.url);
-    if (/\.(mp4|webm|ogg)(\?|#|$)/i.test(href)) {
+    if (/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(href)) {
       var video = document.createElement('video');
       video.controls = true;
       video.preload = 'metadata';
@@ -260,12 +342,45 @@
       return video;
     }
 
-    var fallbackImg = document.createElement('img');
-    fallbackImg.className = 'media-card__image';
-    fallbackImg.loading = 'lazy';
-    fallbackImg.alt = item.title || 'Video preview';
-    fallbackImg.src = resolvePreviewImage(item);
-    return fallbackImg;
+    return createFileElement(item, 'video');
+  }
+
+  function createFileElement(item, type) {
+    if (item.thumbnailUrl) {
+      var img = document.createElement('img');
+      img.className = 'media-card__image';
+      img.loading = 'lazy';
+      img.alt = item.title || getDefaultTitle(type);
+      img.src = resolveAssetPath(item.thumbnailUrl);
+      return img;
+    }
+
+    var placeholder = document.createElement('div');
+    placeholder.className = 'media-card__placeholder';
+
+    var ext = document.createElement('span');
+    ext.className = 'media-card__placeholder-ext';
+    ext.textContent = getFileExtensionLabel(item, type);
+    placeholder.appendChild(ext);
+
+    var label = document.createElement('span');
+    label.className = 'media-card__placeholder-label';
+    label.textContent = type === 'document' ? 'Document Ready' : 'File Ready';
+    placeholder.appendChild(label);
+
+    return placeholder;
+  }
+
+  function getFileExtensionLabel(item, type) {
+    var source = item.originalName || item.url || '';
+    var match = String(source).match(/\.([a-z0-9]{1,6})(?:[?#].*)?$/i);
+    if (match) return match[1].toUpperCase();
+
+    if (item.url && item.url.indexOf('drive.google.com') !== -1) {
+      return 'DRIVE';
+    }
+
+    return type === 'document' ? 'DOC' : 'FILE';
   }
 
   function resolvePreviewImage(item) {
@@ -284,7 +399,11 @@
       return 'img/artemis-ii-launch.jpg';
     }
 
-    return resolveAssetPath(item.url);
+    if (item.type === 'image') {
+      return resolveAssetPath(item.url);
+    }
+
+    return '';
   }
 
   function resolveMediaHref(url) {
@@ -386,7 +505,7 @@
     meta.appendChild(date);
 
     if (item.source) {
-      meta.appendChild(document.createTextNode(' · '));
+      meta.appendChild(document.createTextNode(' - '));
       var source = document.createElement('span');
       source.className = item.category === 'highlight'
         ? 'news-item__source-badge'
@@ -452,6 +571,224 @@
     card.appendChild(action);
 
     return card;
+  }
+
+  function setupAdminConsole() {
+    if (!dom.adminForm) return;
+
+    try {
+      var storedAdminKey = window.localStorage.getItem(ADMIN_KEY_STORAGE_KEY);
+      if (storedAdminKey && dom.adminKey) {
+        dom.adminKey.value = storedAdminKey;
+      }
+    } catch (err) {
+      // Ignore storage failures and continue with in-memory entry only.
+    }
+
+    if (dom.adminModeUrl) {
+      dom.adminModeUrl.addEventListener('change', toggleAdminMode);
+    }
+
+    if (dom.adminModeUpload) {
+      dom.adminModeUpload.addEventListener('change', toggleAdminMode);
+    }
+
+    if (dom.adminFile) {
+      dom.adminFile.addEventListener('change', handleAdminFileSelection);
+    }
+
+    dom.adminForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      submitAdminForm();
+    });
+
+    toggleAdminMode();
+  }
+
+  function getAdminMode() {
+    return dom.adminModeUpload && dom.adminModeUpload.checked ? 'upload' : 'url';
+  }
+
+  function toggleAdminMode() {
+    var mode = getAdminMode();
+
+    if (dom.adminUrlRow) dom.adminUrlRow.hidden = mode !== 'url';
+    if (dom.adminFileRow) dom.adminFileRow.hidden = mode !== 'upload';
+    if (dom.adminUrl) dom.adminUrl.required = mode === 'url';
+    if (dom.adminFile) dom.adminFile.required = mode === 'upload';
+    if (dom.adminSubmit) dom.adminSubmit.textContent = mode === 'upload' ? 'Upload Asset' : 'Post Asset';
+  }
+
+  function handleAdminFileSelection() {
+    if (!dom.adminFile || !dom.adminFile.files || !dom.adminFile.files[0]) return;
+
+    var file = dom.adminFile.files[0];
+
+    if (dom.adminTitle && !dom.adminTitle.value.trim()) {
+      dom.adminTitle.value = stripExtension(file.name);
+    }
+
+    if (dom.adminType) {
+      dom.adminType.value = inferTypeFromFile(file);
+    }
+  }
+
+  function stripExtension(fileName) {
+    return String(fileName || '').replace(/\.[^.]+$/, '');
+  }
+
+  function inferTypeFromFile(file) {
+    var mimeType = (file.type || '').toLowerCase();
+    var fileName = String(file.name || '').toLowerCase();
+
+    if (mimeType.indexOf('image/') === 0) return 'image';
+    if (mimeType.indexOf('video/') === 0) return 'video';
+    if (/\.(pdf|doc|docx|txt|md|rtf|csv|json|xml|ppt|pptx|xls|xlsx)$/i.test(fileName)) return 'document';
+    if (mimeType.indexOf('text/') === 0) return 'document';
+
+    return 'other';
+  }
+
+  function setAdminStatus(message, tone) {
+    if (!dom.adminStatus) return;
+    dom.adminStatus.textContent = message;
+    dom.adminStatus.className = 'admin-status' + (tone ? ' admin-status--' + tone : '');
+  }
+
+  function setAdminBusy(isBusy) {
+    if (dom.adminSubmit) dom.adminSubmit.disabled = isBusy;
+    if (dom.adminSubmit) dom.adminSubmit.textContent = isBusy
+      ? (getAdminMode() === 'upload' ? 'Uploading...' : 'Posting...')
+      : (getAdminMode() === 'upload' ? 'Upload Asset' : 'Post Asset');
+  }
+
+  function submitAdminForm() {
+    var adminKey = dom.adminKey ? dom.adminKey.value.trim() : '';
+    if (!adminKey) {
+      setAdminStatus('Enter the admin API key before submitting.', 'error');
+      return;
+    }
+
+    var mode = getAdminMode();
+    setAdminBusy(true);
+    setAdminStatus(mode === 'upload'
+      ? 'Encoding file and sending upload...'
+      : 'Posting new media item...', 'info');
+
+    buildAdminPayload(mode)
+      .then(function (payload) {
+        try {
+          window.localStorage.setItem(ADMIN_KEY_STORAGE_KEY, adminKey);
+        } catch (err) {
+          // Ignore storage failures and continue with the current submission.
+        }
+
+        return fetch(MEDIA_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-key': adminKey
+          },
+          body: JSON.stringify(payload)
+        });
+      })
+      .then(function (response) {
+        return response.json().catch(function () {
+          return {};
+        }).then(function (data) {
+          if (!response.ok) {
+            throw new Error(data.error || 'Unable to create media item');
+          }
+          return data;
+        });
+      })
+      .then(function () {
+        clearAdminFields();
+        setAdminStatus('Media item saved. The catalog has been refreshed.', 'success');
+        fetchMediaHub();
+      })
+      .catch(function (err) {
+        setAdminStatus(err.message || 'Unable to submit media item.', 'error');
+      })
+      .finally(function () {
+        setAdminBusy(false);
+      });
+  }
+
+  function buildAdminPayload(mode) {
+    var payload = {
+      title: dom.adminTitle ? dom.adminTitle.value.trim() : '',
+      type: dom.adminType ? dom.adminType.value : 'image',
+      category: dom.adminCategory ? dom.adminCategory.value.trim() : '',
+      description: dom.adminDescription ? dom.adminDescription.value.trim() : '',
+      thumbnailUrl: dom.adminThumbnailUrl ? dom.adminThumbnailUrl.value.trim() : ''
+    };
+
+    if (!payload.title) {
+      return Promise.reject(new Error('Title is required.'));
+    }
+
+    if (mode === 'url') {
+      payload.url = dom.adminUrl ? dom.adminUrl.value.trim() : '';
+      if (!payload.url) {
+        return Promise.reject(new Error('Media URL is required.'));
+      }
+      return Promise.resolve(payload);
+    }
+
+    if (!dom.adminFile || !dom.adminFile.files || !dom.adminFile.files[0]) {
+      return Promise.reject(new Error('Choose a file to upload.'));
+    }
+
+    var file = dom.adminFile.files[0];
+    if (file.size > uploadLimitBytes) {
+      return Promise.reject(new Error('File exceeds the ' + formatFileSize(uploadLimitBytes) + ' upload limit.'));
+    }
+
+    return readFileAsUpload(file).then(function (upload) {
+      payload.upload = upload;
+      return payload;
+    });
+  }
+
+  function readFileAsUpload(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+
+      reader.onload = function () {
+        var result = typeof reader.result === 'string' ? reader.result : '';
+        var parts = result.split(',');
+        resolve({
+          fileName: file.name,
+          mimeType: file.type,
+          dataBase64: parts.length > 1 ? parts[1] : parts[0]
+        });
+      };
+
+      reader.onerror = function () {
+        reject(new Error('Unable to read the selected file.'));
+      };
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function clearAdminFields() {
+    if (dom.adminTitle) dom.adminTitle.value = '';
+    if (dom.adminCategory) dom.adminCategory.value = '';
+    if (dom.adminUrl) dom.adminUrl.value = '';
+    if (dom.adminThumbnailUrl) dom.adminThumbnailUrl.value = '';
+    if (dom.adminDescription) dom.adminDescription.value = '';
+    if (dom.adminFile) dom.adminFile.value = '';
+    if (dom.adminType) dom.adminType.value = 'image';
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes < 1024 * 1024) {
+      return Math.round(bytes / 1024) + ' KB';
+    }
+
+    return (bytes / (1024 * 1024)).toFixed(0) + ' MB';
   }
 
   function setCount(el, value) {

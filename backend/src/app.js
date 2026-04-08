@@ -36,8 +36,8 @@ module.exports = function createApp({ services }) {
         callback(null, false);
       }
     },
-    methods: ['GET', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Accept'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'x-admin-key'],
   }));
 
   // Request logging using pino-aware morgan stream
@@ -46,7 +46,7 @@ module.exports = function createApp({ services }) {
     skip: (req, res) => req.url === '/api/v1/health' // Skip health checks in logs
   }));
 
-  app.use(express.json());
+  app.use(express.json({ limit: '35mb' }));
 
   // Static Media Serving
   app.use('/public', express.static(path.join(__dirname, '../public')));

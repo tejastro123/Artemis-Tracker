@@ -1,5 +1,12 @@
 const MediaItem = require('../db/models/MediaItem');
 const logger = require('../utils/logger');
+const { AppError, ValidationError } = require('../utils/errors');
+const {
+  MEDIA_TYPES,
+  MAX_UPLOAD_SIZE_BYTES,
+  persistUpload,
+  validatePublicOrRemoteUrl
+} = require('../utils/mediaUpload');
 
 const FALLBACK_MEDIA_ITEMS = [
   {
@@ -89,10 +96,50 @@ class MediaService {
       items: normalizedItems,
       images: normalizedItems.filter(item => item.type === 'image'),
       videos: normalizedItems.filter(item => item.type === 'video'),
+      documents: normalizedItems.filter(item => item.type === 'document'),
+      others: normalizedItems.filter(item => item.type === 'other'),
       importantLinks: IMPORTANT_LINKS,
+      supportedTypes: MEDIA_TYPES,
+      maxUploadSizeBytes: MAX_UPLOAD_SIZE_BYTES,
       usingFallbackMedia,
       generatedAt: new Date().toISOString()
     };
+  }
+
+  async createMediaItem(input = {}) {
+    if (MediaItem.db.readyState !== 1) {
+      throw new AppError('Media database is unavailable right now', 503);
+    }
+
+    const title = this._requireTrimmedString(input.title, 'Title');
+    const type = this._requireMediaType(input.type);
+    const description = this._optionalTrimmedString(input.description);
+    const category = this._optionalTrimmedString(input.category) || 'mission';
+    const thumbnailUrl = input.thumbnailUrl
+      ? validatePublicOrRemoteUrl(input.thumbnailUrl, 'Thumbnail URL')
+      : undefined;
+
+    const stored = input.upload
+      ? await persistUpload({ type, upload: input.upload })
+      : {
+          url: validatePublicOrRemoteUrl(input.url, 'Media URL'),
+          sourceType: 'url'
+        };
+
+    const created = await MediaItem.create({
+      title,
+      type,
+      url: stored.url,
+      thumbnailUrl,
+      sourceType: stored.sourceType,
+      mimeType: stored.mimeType,
+      originalName: stored.originalName,
+      sizeBytes: stored.sizeBytes,
+      category,
+      description
+    });
+
+    return this._normalizeItem(created.toObject());
   }
 
   async _getMediaItems() {
@@ -127,6 +174,35 @@ class MediaService {
       normalized.createdAt = normalized.createdAt.toISOString();
     }
 
+    if (normalized.updatedAt instanceof Date) {
+      normalized.updatedAt = normalized.updatedAt.toISOString();
+    }
+
+    if (normalized._id && typeof normalized._id !== 'string') {
+      normalized._id = String(normalized._id);
+    }
+
+    return normalized;
+  }
+
+  _optionalTrimmedString(value) {
+    if (typeof value !== 'string') return '';
+    return value.trim();
+  }
+
+  _requireTrimmedString(value, fieldName) {
+    const normalized = this._optionalTrimmedString(value);
+    if (!normalized) {
+      throw new ValidationError(`${fieldName} is required`);
+    }
+    return normalized;
+  }
+
+  _requireMediaType(value) {
+    const normalized = this._optionalTrimmedString(value).toLowerCase();
+    if (!MEDIA_TYPES.includes(normalized)) {
+      throw new ValidationError(`Type must be one of: ${MEDIA_TYPES.join(', ')}`);
+    }
     return normalized;
   }
 }

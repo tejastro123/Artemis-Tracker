@@ -6,7 +6,7 @@
     <title>Media Center - Artemis II Mission Tracker</title>
     <meta
       name="description"
-      content="Artemis II media center with mission images, videos, latest news, and important tracking links."
+      content="Artemis II media center with mission images, videos, documents, uploads, latest news, and important tracking links."
     />
     <meta name="theme-color" content="#0a0e17" />
     <link rel="preconnect" href="https://fonts.googleapis.com/" />
@@ -129,7 +129,7 @@
 
       .media-stats {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 1rem;
         margin-bottom: 2.75rem;
       }
@@ -227,6 +227,35 @@
         object-fit: cover;
       }
 
+      .media-card__placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 1.25rem;
+        background:
+          radial-gradient(circle at top, rgba(0, 242, 255, 0.22), transparent 55%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(10, 14, 23, 0.92));
+        color: var(--text-bright);
+        text-align: center;
+      }
+
+      .media-card__placeholder-ext {
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        font-weight: 800;
+        letter-spacing: 0.1em;
+      }
+
+      .media-card__placeholder-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
       .media-card__body,
       .link-card {
         padding: 1.1rem;
@@ -320,6 +349,127 @@
         gap: 1rem;
       }
 
+      .media-help {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      .admin-panel {
+        padding: 1.35rem;
+        border-radius: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+          radial-gradient(circle at top right, rgba(0, 242, 255, 0.12), transparent 32%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+      }
+
+      .admin-form {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .admin-form__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .admin-form__field {
+        display: grid;
+        gap: 0.55rem;
+      }
+
+      .admin-form__field label,
+      .admin-form__legend {
+        color: var(--text-bright);
+        font-size: 0.88rem;
+        font-weight: 700;
+      }
+
+      .admin-form__field input,
+      .admin-form__field textarea,
+      .admin-form__field select {
+        width: 100%;
+        padding: 0.9rem 0.95rem;
+        border-radius: 0.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(10, 14, 23, 0.78);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .admin-form__field textarea {
+        min-height: 7.5rem;
+        resize: vertical;
+      }
+
+      .admin-form__toggles {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+      }
+
+      .admin-form__toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.85rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+      }
+
+      .admin-form__toggle input {
+        accent-color: var(--accent);
+      }
+
+      .admin-form__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .admin-submit {
+        min-height: 3rem;
+        padding: 0.85rem 1.2rem;
+        border: 1px solid rgba(0, 242, 255, 0.22);
+        border-radius: 0.9rem;
+        background: rgba(0, 242, 255, 0.08);
+        color: var(--accent);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .admin-submit:hover,
+      .admin-submit:focus-visible {
+        background: rgba(0, 242, 255, 0.14);
+        color: var(--text-bright);
+      }
+
+      .admin-status {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      .admin-status--success {
+        color: #86efac;
+      }
+
+      .admin-status--error {
+        color: #fda4af;
+      }
+
+      .admin-status--info {
+        color: var(--text-muted);
+      }
+
       .site-footer .container {
         display: flex;
         flex-direction: column;
@@ -327,8 +477,8 @@
       }
 
       @media (max-width: 900px) {
-        .media-stats {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+        .admin-form__grid {
+          grid-template-columns: 1fr;
         }
       }
 
@@ -339,6 +489,15 @@
 
         .media-stats {
           grid-template-columns: 1fr;
+        }
+
+        .admin-form__actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .admin-submit {
+          width: 100%;
         }
 
         .media-card__footer {
@@ -401,10 +560,10 @@
       <section class="media-hero" aria-labelledby="media-heading">
         <div>
           <p class="media-hero__eyebrow">Media Center</p>
-          <h1 id="media-heading" class="media-hero__title">Images, video, news, and mission resources in one place.</h1>
+          <h1 id="media-heading" class="media-hero__title">Images, video, documents, news, and mission resources in one place.</h1>
           <p class="media-hero__lead">
-            Follow the mission visually, catch the latest Artemis coverage, and keep the most important
-            project and NASA links within easy reach.
+            Follow the mission visually, manage manual uploads for mission assets, catch the latest Artemis
+            coverage, and keep the most important project and NASA links within easy reach.
           </p>
 
           <div class="media-hero__meta">
@@ -419,7 +578,10 @@
       <nav class="media-jump" aria-label="Media center sections">
         <a href="#media-images-section">Images</a>
         <a href="#media-videos-section">Videos</a>
+        <a href="#media-documents-section">Documents</a>
+        <a href="#media-other-section">Other Files</a>
         <a href="#media-news-section">Latest News</a>
+        <a href="#admin-console-section">Admin</a>
         <a href="#important-links-section">Important Links</a>
       </nav>
 
@@ -435,6 +597,14 @@
         <article class="media-stat">
           <span id="media-count-news" class="media-stat__value">0</span>
           <span class="media-stat__label">Latest News</span>
+        </article>
+        <article class="media-stat">
+          <span id="media-count-documents" class="media-stat__value">0</span>
+          <span class="media-stat__label">Documents</span>
+        </article>
+        <article class="media-stat">
+          <span id="media-count-other" class="media-stat__value">0</span>
+          <span class="media-stat__label">Other Files</span>
         </article>
         <article class="media-stat">
           <span id="media-count-links" class="media-stat__value">0</span>
@@ -463,6 +633,146 @@
         </div>
         <div id="media-videos" class="media-grid">
           <p class="media-empty">Loading video archive...</p>
+        </div>
+      </section>
+
+      <section id="media-documents-section" class="media-section" aria-labelledby="media-documents-heading">
+        <div class="media-section__head">
+          <div>
+            <h2 id="media-documents-heading">Documents</h2>
+            <p>PDFs, mission notes, reference docs, and shareable files posted by the admin catalog.</p>
+          </div>
+        </div>
+        <div id="media-documents" class="media-grid">
+          <p class="media-empty">Loading document archive...</p>
+        </div>
+      </section>
+
+      <section id="media-other-section" class="media-section" aria-labelledby="media-other-heading">
+        <div class="media-section__head">
+          <div>
+            <h2 id="media-other-heading">Other Files</h2>
+            <p>Additional uploads that do not fit the image, video, or document sections.</p>
+          </div>
+        </div>
+        <div id="media-other" class="media-grid">
+          <p class="media-empty">Loading additional files...</p>
+        </div>
+      </section>
+
+      <section id="admin-console-section" class="media-section" aria-labelledby="admin-console-heading">
+        <div class="media-section__head">
+          <div>
+            <h2 id="admin-console-heading">Admin Console</h2>
+            <p>
+              Manually post Google Drive items, YouTube links, direct file URLs, or upload local files into the
+              media catalog. News continues to come from the existing live feeds.
+            </p>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <form id="media-admin-form" class="admin-form">
+            <div class="admin-form__field">
+              <span class="admin-form__legend">Submission Mode</span>
+              <div class="admin-form__toggles">
+                <label class="admin-form__toggle" for="admin-mode-url">
+                  <input id="admin-mode-url" type="radio" name="admin-mode" value="url" checked />
+                  <span>Use URL</span>
+                </label>
+                <label class="admin-form__toggle" for="admin-mode-upload">
+                  <input id="admin-mode-upload" type="radio" name="admin-mode" value="upload" />
+                  <span>Upload file</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="admin-form__grid">
+              <div class="admin-form__field">
+                <label for="admin-api-key">Admin API Key</label>
+                <input
+                  id="admin-api-key"
+                  name="admin-api-key"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Enter your ADMIN_API_KEY"
+                  required
+                />
+              </div>
+
+              <div class="admin-form__field">
+                <label for="admin-type">Type</label>
+                <select id="admin-type" name="admin-type">
+                  <option value="image">Image</option>
+                  <option value="video">Video</option>
+                  <option value="document">Document</option>
+                  <option value="other">Other File</option>
+                </select>
+              </div>
+
+              <div class="admin-form__field">
+                <label for="admin-title">Title</label>
+                <input id="admin-title" name="admin-title" type="text" placeholder="Mission asset title" required />
+              </div>
+
+              <div class="admin-form__field">
+                <label for="admin-category">Category</label>
+                <input id="admin-category" name="admin-category" type="text" placeholder="mission, crew, docs, archive..." />
+              </div>
+            </div>
+
+            <div id="admin-url-row" class="admin-form__field">
+              <label for="admin-url">Media URL</label>
+              <input
+                id="admin-url"
+                name="admin-url"
+                type="url"
+                placeholder="https://drive.google.com/... or https://www.youtube.com/watch?v=..."
+              />
+            </div>
+
+            <div id="admin-file-row" class="admin-form__field" hidden>
+              <label for="admin-file">Upload File</label>
+              <input
+                id="admin-file"
+                name="admin-file"
+                type="file"
+                accept="image/*,video/*,.pdf,.doc,.docx,.txt,.md,.csv,.json,.xml,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z"
+              />
+            </div>
+
+            <div class="admin-form__field">
+              <label for="admin-thumbnail-url">Thumbnail URL (optional)</label>
+              <input
+                id="admin-thumbnail-url"
+                name="admin-thumbnail-url"
+                type="url"
+                placeholder="Optional preview image for documents, files, or custom cards"
+              />
+            </div>
+
+            <div class="admin-form__field">
+              <label for="admin-description">Description</label>
+              <textarea
+                id="admin-description"
+                name="admin-description"
+                placeholder="Short context for this asset"
+              ></textarea>
+            </div>
+
+            <p class="media-help">
+              URL mode supports Google Drive image/video links, YouTube links, direct `.mp4` / `.webm` / `.ogg`
+              URLs, PDFs, docs, and other remote files. Upload mode stores the selected file under the backend
+              `/public/media` folder.
+            </p>
+
+            <div class="admin-form__actions">
+              <button type="submit" id="admin-submit" class="admin-submit">Post Asset</button>
+              <p id="admin-status" class="admin-status admin-status--info" role="status" aria-live="polite">
+                Enter your admin API key and submit a URL or file upload.
+              </p>
+            </div>
+          </form>
         </div>
       </section>
 

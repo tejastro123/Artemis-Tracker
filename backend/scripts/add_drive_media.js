@@ -3,12 +3,12 @@ const MediaItem = require('../src/db/models/MediaItem');
 const config = require('../src/config');
 const logger = require('../src/utils/logger');
 
-// Usage: node scripts/add_drive_media.js "Title" "Type(image/video)" "DriveLink" "Description"
+// Usage: node scripts/add_drive_media.js "Title" "Type(image/video/document/other)" "MediaURL" "Description"
 async function addDriveMedia() {
   const [title, type, url, description] = process.argv.slice(2);
 
   if (!title || !type || !url) {
-    console.log('Usage: node scripts/add_drive_media.js "Title" "image|video" "DriveURL" ["Description"]');
+    console.log('Usage: node scripts/add_drive_media.js "Title" "image|video|document|other" "MediaURL" ["Description"]');
     process.exit(1);
   }
 
