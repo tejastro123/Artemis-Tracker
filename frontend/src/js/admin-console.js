@@ -40,14 +40,11 @@
       type: document.getElementById('admin-type'),
       title: document.getElementById('admin-title'),
       category: document.getElementById('admin-category'),
-      url: document.getElementById('admin-url'),
+      urlRow: document.getElementById('admin-url-row'),
+      fileRow: document.getElementById('admin-file-row'),
       file: document.getElementById('admin-file'),
       thumbnailUrl: document.getElementById('admin-thumbnail-url'),
       description: document.getElementById('admin-description'),
-      modeUrl: document.getElementById('admin-mode-url'),
-      modeUpload: document.getElementById('admin-mode-upload'),
-      urlRow: document.getElementById('admin-url-row'),
-      fileRow: document.getElementById('admin-file-row'),
       summaryImages: document.getElementById('summary-images'),
       summaryVideos: document.getElementById('summary-videos'),
       summaryDocuments: document.getElementById('summary-documents'),
@@ -78,14 +75,6 @@
       });
     }
 
-    if (dom.modeUrl) {
-      dom.modeUrl.addEventListener('change', toggleMode);
-    }
-
-    if (dom.modeUpload) {
-      dom.modeUpload.addEventListener('change', toggleMode);
-    }
-
     if (dom.file) {
       dom.file.addEventListener('change', handleFileSelection);
     }
@@ -96,8 +85,6 @@
         submitMedia();
       });
     }
-
-    toggleMode();
   }
 
   function restoreAccess() {
@@ -223,17 +210,15 @@
   }
 
   function getMode() {
-    return dom.modeUpload && dom.modeUpload.checked ? 'upload' : 'url';
+    return 'upload';
   }
 
   function toggleMode() {
-    var mode = getMode();
-
-    if (dom.urlRow) dom.urlRow.hidden = mode !== 'url';
-    if (dom.fileRow) dom.fileRow.hidden = mode !== 'upload';
-    if (dom.url) dom.url.required = mode === 'url';
-    if (dom.file) dom.file.required = mode === 'upload';
-    if (dom.submit) dom.submit.textContent = mode === 'upload' ? 'Upload Asset' : 'Post Asset';
+    // URL mode removed. Always show upload UI.
+    if (dom.urlRow) dom.urlRow.hidden = true;
+    if (dom.fileRow) dom.fileRow.hidden = false;
+    if (dom.file) dom.file.required = true;
+    if (dom.submit) dom.submit.textContent = 'Upload Assets';
   }
 
   function handleFileSelection() {
@@ -256,73 +241,76 @@
       return;
     }
 
-    setSubmitBusy(true);
-    setSubmitStatus(getMode() === 'upload' ? 'Encoding file and sending upload...' : 'Posting new media item...', 'info');
+    var files = dom.file && dom.file.files ? Array.from(dom.file.files) : [];
+    if (!files.length) {
+      setSubmitStatus('Choose at least one file to upload.', 'error');
+      return;
+    }
 
-    buildPayload()
-      .then(function (payload) {
-        return fetch(MEDIA_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-token': token
-          },
-          body: JSON.stringify(payload)
+    setSubmitBusy(true);
+    setSubmitStatus('Preparing ' + files.length + ' upload(s)...', 'info');
+
+    var uploadResults = {
+      success: 0,
+      total: files.length,
+      errors: []
+    };
+
+    function uploadOne(file, index) {
+      setSubmitStatus('Uploading ' + (index + 1) + ' of ' + files.length + ': ' + file.name + '...', 'info');
+
+      return uploadFile(file, token)
+        .then(function () {
+          uploadResults.success++;
+        })
+        .catch(function (err) {
+          uploadResults.errors.push(file.name + ': ' + (err.message || 'Failed'));
         });
-      })
-      .then(parseJsonResponse)
+    }
+
+    // Process parallel uploads.
+    Promise.all(files.map(function (file, i) { return uploadOne(file, i); }))
       .then(function () {
-        clearForm();
-        setSubmitStatus('Media item saved. Catalog updated.', 'success');
+        if (uploadResults.success === uploadResults.total) {
+          setSubmitStatus('All ' + uploadResults.total + ' assets uploaded successfully.', 'success');
+          clearForm();
+        } else {
+          setSubmitStatus('Uploaded ' + uploadResults.success + ' of ' + uploadResults.total + '. Some failed.', 'error');
+          console.error('Upload errors:', uploadResults.errors);
+        }
         fetchCatalogSnapshot();
       })
       .catch(function (err) {
-        if (err && err.status === 401) {
-          clearAdminToken();
-          renderLogin('Admin session expired. Sign in again.', 'error');
-          return;
-        }
-
-        setSubmitStatus(err.message || 'Unable to submit media item.', 'error');
+        setSubmitStatus(err.message || 'An unexpected error occurred.', 'error');
       })
       .finally(function () {
         setSubmitBusy(false);
       });
   }
 
-  function buildPayload() {
-    var payload = {
-      title: dom.title ? dom.title.value.trim() : '',
-      type: dom.type ? dom.type.value : 'image',
-      category: dom.category ? dom.category.value.trim() : '',
-      description: dom.description ? dom.description.value.trim() : '',
-      thumbnailUrl: dom.thumbnailUrl ? dom.thumbnailUrl.value.trim() : ''
-    };
-
-    if (!payload.title) {
-      return Promise.reject(new Error('Title is required.'));
-    }
-
-    if (getMode() === 'url') {
-      payload.url = dom.url ? dom.url.value.trim() : '';
-      if (!payload.url) {
-        return Promise.reject(new Error('Media URL is required.'));
-      }
-      return Promise.resolve(payload);
-    }
-
-    if (!dom.file || !dom.file.files || !dom.file.files[0]) {
-      return Promise.reject(new Error('Choose a file to upload.'));
-    }
-
-    var file = dom.file.files[0];
+  function uploadFile(file, token) {
     if (file.size > uploadLimitBytes) {
-      return Promise.reject(new Error('File exceeds the ' + formatFileSize(uploadLimitBytes) + ' upload limit.'));
+      return Promise.reject(new Error(file.name + ' exceeds the ' + formatFileSize(uploadLimitBytes) + ' limit.'));
     }
 
     return readFileAsUpload(file).then(function (upload) {
-      payload.upload = upload;
-      return payload;
+      var payload = {
+        title: dom.title && dom.title.value.trim() ? dom.title.value.trim() : stripExtension(file.name),
+        type: inferTypeFromFile(file),
+        category: dom.category ? dom.category.value.trim() : '',
+        description: dom.description ? dom.description.value.trim() : '',
+        thumbnailUrl: dom.thumbnailUrl ? dom.thumbnailUrl.value.trim() : '',
+        upload: upload
+      };
+
+      return fetch(MEDIA_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token
+        },
+        body: JSON.stringify(payload)
+      }).then(parseJsonResponse);
     });
   }
 
@@ -384,9 +372,7 @@
 
   function setSubmitBusy(isBusy) {
     if (dom.submit) dom.submit.disabled = isBusy;
-    if (dom.submit) dom.submit.textContent = isBusy
-      ? (getMode() === 'upload' ? 'Uploading...' : 'Posting...')
-      : (getMode() === 'upload' ? 'Upload Asset' : 'Post Asset');
+    if (dom.submit) dom.submit.textContent = isBusy ? 'Uploading Assets...' : 'Upload Assets';
   }
 
   function clearForm() {

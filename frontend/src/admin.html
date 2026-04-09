@@ -391,19 +391,7 @@
             </div>
 
             <form id="admin-media-form" class="admin-form">
-              <div class="admin-form__field">
-                <span class="admin-form__legend">Submission Mode</span>
-                <div class="admin-form__toggles">
-                  <label class="admin-form__toggle" for="admin-mode-url">
-                    <input id="admin-mode-url" type="radio" name="admin-mode" value="url" checked />
-                    <span>Use URL</span>
-                  </label>
-                  <label class="admin-form__toggle" for="admin-mode-upload">
-                    <input id="admin-mode-upload" type="radio" name="admin-mode" value="upload" />
-                    <span>Upload File</span>
-                  </label>
-                </div>
-              </div>
+
 
               <div class="admin-form__grid">
                 <div class="admin-form__field">
@@ -427,17 +415,9 @@
                 </div>
               </div>
 
-              <div id="admin-url-row" class="admin-form__field">
-                <label for="admin-url">Media URL</label>
-                <input
-                  id="admin-url"
-                  name="admin-url"
-                  type="url"
-                  placeholder="https://drive.google.com/... or https://www.youtube.com/watch?v=..."
-                />
-              </div>
 
-              <div id="admin-file-row" class="admin-form__field" hidden>
+
+              <div id="admin-file-row" class="admin-form__field">
                 <label for="admin-file">Upload File</label>
                 <input
                   id="admin-file"
@@ -468,13 +448,12 @@
               </div>
 
               <p class="admin-note">
-                URL mode supports Google Drive images and videos, YouTube links, direct `.mp4` / `.webm` / `.ogg`
-                URLs, PDFs, docs, and other remote files. Upload mode stores files under the backend
-                `/public/media` folders.
+                Upload mode stores assets under the backend
+                <code>/public/media</code> folders. Multiple files selected will be processed as separate items.
               </p>
 
               <div class="admin-actions">
-                <button id="admin-submit" class="admin-button" type="submit">Post Asset</button>
+                <button id="admin-submit" class="admin-button" type="submit">Upload Assets</button>
                 <p id="admin-submit-status" class="admin-status" role="status" aria-live="polite">
                   Ready to post.
                 </p>

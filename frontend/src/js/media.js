@@ -192,7 +192,7 @@
 
   function createMediaCard(item, type) {
     var card = document.createElement('article');
-    card.className = 'media-card';
+    card.className = 'media-card animate-fade-in';
 
     var badge = document.createElement('span');
     badge.className = 'media-card__badge';
